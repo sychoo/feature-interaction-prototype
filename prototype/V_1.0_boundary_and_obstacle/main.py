@@ -1,29 +1,25 @@
-# calculate robustness value using distance to boundary
+# Designed by Simon Chu
+# Thu Sep 24 11:55:14 EDT 2020
 
-# using seaborn library for data visualization
+# calculate robustness value using distance to boundary and distance to obstacle (whichever has the least robustness)
 
-# Penguins Example Dataset
-# import seaborn as sns
-# df = sns.load_dataset("penguins")
-# sns.pairplot(df, hue="species")
-# import matplotlib.pyplot as plt
-# plt.show()
-
+# using seaborn and matplotlib library for data visualization (heatmap)
 import math
-import numpy as np;
-np.random.seed(0)
-import seaborn as sns; sns.set_theme()
+import numpy as np
+import seaborn as sns
+sns.set_theme()
+import matplotlib.pyplot as plt
 
-# uniform_data = np.random.rand(10, 12)
-# print(uniform_data)
+# parameter to adjust
+x_length = 20 # length of map
+y_length = 20 # height of map
 
-x_length = 20
-y_length = 20
-# minimal safety distance is 3.0
-minimal_safety_distance = 3.0
-exists_obstacle = True
-obstacle_locs = [(4, 6), (20, 40), (30, 30), (30, 31), (31, 30), (31, 31), (40, 20)]
+# minimal safety distance is 3.0 by default
+minimal_safety_distance = 3.0 # the minimal safety distance between the drone and the boundary
+exists_obstacle = True # set whether the obstracle exists
+obstacle_locs = [(4, 6), (20, 40), (30, 30), (30, 31), (31, 30), (31, 31), (40, 20)] # the coordinates of the obstacles relatively to the boundary
 
+# function to calculate the robustness value based on the current cell coordinates
 def robustness(x, y, x_length, y_length):
     top_boundary_y = 0
     left_boundary_x = 0
@@ -102,6 +98,6 @@ for y in range(y_length):
 # ax = sns.heatmap(data, cmap="coolwarm_r")
 
 ax = sns.heatmap(data, cmap="Spectral")
-import matplotlib.pyplot as plt
+
 plt.tick_params(axis='both', which='major', labelsize=10, labelbottom = False, bottom=False, top = False, labeltop=True, length=0)
 plt.show()
