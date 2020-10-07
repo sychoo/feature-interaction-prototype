@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     # set the initial positions for teh ego drone and the enemy drone
     ego_drone.set_initial_location(0, 20)
-    enemy_drone.set_initial_location(20, 20)
+    enemy_drone.set_initial_location(5, 5)
 
     # add enemy drone and ego drone
     mission_obj.add_drone(ego_drone)
