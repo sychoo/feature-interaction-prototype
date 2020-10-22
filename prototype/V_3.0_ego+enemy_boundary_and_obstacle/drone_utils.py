@@ -6,13 +6,14 @@
 
 import abc
 import parser 
+from map_utils import Coord
 
 # Drone object works together with the map
 # the drone decide for itself where it would like to go next
 class Drone(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def next_step(self):
-        # abstract method to execute everytime the drone advances
+        # abstract method to execute everytime the drone advances in the execution loop
         pass
     
     @abc.abstractmethod
@@ -22,14 +23,15 @@ class Drone(metaclass=abc.ABCMeta):
         pass
 
     def receive_response_data(self, response_data):
+        # receive response data from the broadcaster in the execution loop
         self.response_data = response_data
 
-    # check whether response data is initialized
     def has_response_data(self):
+        # check whether response data is initialized
         return hasattr(self, "response_data")
 
-    # fetch the response data received from the broadcaster in the run method in the MissionPlanner
     def get_response_data(self):
+        # fetch the response data received from the broadcaster in the run method in the MissionPlanner
         if hasattr(self, "response_data"):
             return self.response_data
         else:
@@ -38,16 +40,18 @@ class Drone(metaclass=abc.ABCMeta):
     def init_attribute(self):
         # initialize the attribute
         # can hold various things like flight path list of tuple of coordinates, 
-        self.attributes = {}
+        self.attributes = dict()
 
     def set_identifier(self, identifier):
+        # set identifier for the drone
         self.identifier = identifier
 
     def get_identifier(self):
+        # get the identifier for the drone
         if hasattr(self, "identifier"):
             return self.identifier
         else:
-            raise RuntimeError("map variable has not been initialized.")
+            raise RuntimeError("drone identifier variable has not been initialized.")
 
     def set_internal_map(self, internal_map):
         # set the internal map associated with the drone
@@ -60,6 +64,7 @@ class Drone(metaclass=abc.ABCMeta):
             raise RuntimeError("map variable has not been initialized.")
 
     def set_initial_location(self, init_x_cor, init_y_cor):
+        # set the initial position coordinates for the drone
         self.init_x_cor = init_x_cor
         self.init_y_cor = init_y_cor
 
@@ -67,22 +72,27 @@ class Drone(metaclass=abc.ABCMeta):
         self.set_current_location(init_x_cor, init_y_cor)
 
     def get_init_x_cor(self):
+        # get the initial X coordinate
         return self.init_x_cor
     
     def get_init_y_cor(self):
+        # get the initial Y coordinate
         return self.init_y_cor
 
     def set_current_location(self, x_cor, y_cor):
+        # set the current location for the drone
         self.x_cor = x_cor
         self.y_cor = y_cor
 
     def get_current_location(self):
+        # obtain the current drone location
         return (self.x_cor, self.y_cor)
     
     def get_current_location_map_cell(self):
+        # get the map_cell object of the current location
         # first ensure that the map variable is set
         if hasattr(self, "internal_map"):
-            return self.internal_map.get_map_cell(self.x_cor, self.y_cor)
+            return self.internal_map.get_map_cell(Coord(self.x_cor, self.y_cor))
         else:
             raise RuntimeError("map variable has not been initialized.")
 
@@ -92,6 +102,11 @@ class Drone(metaclass=abc.ABCMeta):
     def get_y_cor(self):
         return self.y_cor
 
+    def __str__(self):
+        return self.get_identifier() + " Drone: (" + self.get_x_cor() + ", " + self.get_y_cor() + ")" 
+
+    def __repr__(self):
+        return self.get_identifier() + " Drone: (" + self.get_x_cor() + ", " + self.get_y_cor() + ")" 
 
 # EnemyDrone class inherits the Drone parent class
 class EnemyDrone(Drone):
@@ -100,20 +115,18 @@ class EnemyDrone(Drone):
         self.set_identifier("Enemy")
 
     def next_step(self):
-        
+        # the next_step of the enemy drone depends on the location of the ego drone
+        # it will select the path that will maximally approach the ego drone
+
         # Note that the response data may not be intialized the first time the cycle executes.
         # the next move of the enemy drone will depend on the previous location of the ego drone
         if self.has_response_data():
 
-            # debug
-            print(self.response_data)
-
             # case when the response data has been received
             response_data = self.get_response_data()
 
-
             # get the Map_Cell on the current location
-            current_map_cell = self.internal_map.get_map_cell(self.get_x_cor(), self.get_y_cor())
+            current_map_cell = self.internal_map.get_map_cell(Coord(self.get_x_cor(), self.get_y_cor()))
 
             # set the output to 1 (debug, show path)
             current_map_cell.set_output(1)
@@ -127,7 +140,7 @@ class EnemyDrone(Drone):
             # acquire the ego drone x, y coordinates from the response data
             ego_drone_x_cor = response_data["Ego"]["current_x_cor"]
             ego_drone_y_cor = response_data["Ego"]["current_y_cor"]
-            ego_drone_map_cell = self.get_internal_map().get_map_cell(ego_drone_x_cor, ego_drone_y_cor)
+            ego_drone_map_cell = self.get_internal_map().get_map_cell(Coord(ego_drone_x_cor, ego_drone_y_cor))
 
 
             # initialize the min distance to the diagonal length of the map
@@ -143,7 +156,7 @@ class EnemyDrone(Drone):
                     min_ego_enemy_drone_distance = distance_to_ego_drone
                     next_step_map_cell = neighbor_map_cell
 
-            self.set_current_location(next_step_map_cell.get_x_cor(), next_step_map_cell.get_y_cor())
+            self.set_current_location(next_step_map_cell.x(), next_step_map_cell.y())
             # decision: distance advances (dynamic) vs. distance only (static comparison)
             # find all neighbors
             # check which path can advance the most (maybe restrict to 4 neighbors instead of 8 in the future?)
@@ -171,7 +184,7 @@ class EgoDrone(Drone):
         # print("hello")
 
         # get the Map_Cell on the current location
-        current_map_cell = self.internal_map.get_map_cell(self.get_x_cor(), self.get_y_cor())
+        current_map_cell = self.internal_map.get_map_cell(Coord(self.get_x_cor(), self.get_y_cor()))
         # print(current_map_cell)
         # mark current map cell
         current_map_cell.set_output(1)
@@ -189,7 +202,7 @@ class EgoDrone(Drone):
         current_map_cell = self.find_next_map_cell_fly_x_squared(neighbor_dict, self.get_init_x_cor(), self.get_init_y_cor())
         
         # set the current location to the new location
-        self.set_current_location(current_map_cell.get_x_cor(), current_map_cell.get_y_cor())
+        self.set_current_location(current_map_cell.x(), current_map_cell.y())
 
     def emit_response_data(self):
         return {"current_x_cor": self.get_x_cor(), "current_y_cor": self.get_y_cor(), "current_map_cell": self.get_current_location_map_cell()}
@@ -235,7 +248,7 @@ class EgoDrone(Drone):
 
             else:
                 # compute the x coordinate displacement from the origin
-                x_cor_displacement = current_map_cell.get_x_cor() - init_x_cor
+                x_cor_displacement = current_map_cell.x() - init_x_cor
 
                 # compute the x displacement on the graph from the origin
                 x_graph_displacement = x_cor_displacement * graph_to_map_ratio
@@ -251,7 +264,7 @@ class EgoDrone(Drone):
                 y_cor_displacement = y_graph_displacement / graph_to_map_ratio
 
                 # compute the actual y coordinate displace from the current map cell
-                actual_y_cor_displacement = current_map_cell.get_y_cor() - init_y_cor
+                actual_y_cor_displacement = current_map_cell.y() - init_y_cor
 
                 # compute the difference in displacement
                 current_diff = abs(y_cor_displacement + actual_y_cor_displacement)

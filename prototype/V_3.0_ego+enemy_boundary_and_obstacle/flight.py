@@ -8,6 +8,7 @@
 import math
 import numpy as np
 
+from path_utils import Path
 from map_utils import Map_Cell, Map
 
 # import seaborn visualization library
@@ -21,18 +22,37 @@ class Mission_Planner:
         self.drones = []
 
     def run(self, steps):
-        # make sure there are drones
+        # make sure there are drones available
         if not hasattr(self, "drones"):
             raise RuntimeError("drone variable has not been initialized.")
         if len(self.drones) <= 0:
             raise RuntimeError("drone variable is empty. Please add drones to the mission planner.")
+        
+        # intialize the flight path variable to support real-time flight path visualization
+        # support multiple drone
+        drone_identifier_list = []
 
-        while steps > 0:
+        for drone in self.drones:
+            drone_identifier_list.append(drone.get_identifier())
+            
+        # pass the drone identifier list and the internal map associated with drone[0]
+        # assume all drones has the same associated internal map
+        # the drone internal map is for getting the width and height of the map to plot the dynamic chart
+        self.flight_path = Path(drone_identifier_list, self.drones[0].get_internal_map())
+
+        # when step is 0, all drones are at the initial location
+        for drone in self.drones:
+            self.flight_path.add_coords_x_y(drone.get_identifier(), drone.get_x_cor(), drone.get_y_cor())
+
+        total_steps = steps
+        steps = 1
+
+        while steps <= total_steps:
             # intialize response_data to a dictionary
             # re-initialize everytime the loop runs
             response_data = dict()
 
-            # execution time
+            ##### execution time #####
             for drone in self.drones:
                 # execute the next step of the drone movement
                 drone.next_step()
@@ -41,24 +61,48 @@ class Mission_Planner:
                 # note that it is crucial to make identifiers unique to appropriately receive the response data
                 # response_data = {"Ego": ... "Enemy": ...}
                 response_data[drone.get_identifier()] = drone.emit_response_data()
-                
-            # write the robustness score to the map
-            self.write_robustness_score_to_map(response_data)
+            ##### /execution time #####
+             
 
-            # post-execution time, broadcast the response data
-            for drone in self.drones:
-                drone.receive_response_data(response_data)
+
+            ##### data processing #####
+            # write the step data to the response_data
+            response_data["step"] = steps
 
             # decrement the step
-            steps -= 1
+            steps += 1
 
+             # write the robustness score to the map
+            self.write_robustness_score_to_map(response_data)
+
+            # record the path, and update it in real time
+            self.flight_path.add_coords(response_data)
+            ##### /data processing #####
+
+
+
+            ##### post-execution time #####
+            # broadcast the response data back to the drones
+            for drone in self.drones:
+                drone.receive_response_data(response_data)
+            ##### /post-execution time #####
+        # self.flight_path.display_coords()
+
+    def get_flight_path(self):
+        if hasattr(self, "flight_path"):
+            return self.flight_path
+        else:
+            raise RuntimeError("flight_path variable has not been initialized.")
+        
     def write_robustness_score_to_map(self, response_data):
+        # write the robustness score back to the map
         ego_map_cell = response_data["Ego"]["current_map_cell"]
         enemy_map_cell = response_data["Enemy"]["current_map_cell"]
         
         self.compute_dynamic_robustness(ego_map_cell, enemy_map_cell)
 
     def add_drone(self, new_drone):
+        # add new drones to the MissionPlanner
         self.drones.append(new_drone)
 
     # round the float value to the nearest integer value
@@ -158,11 +202,11 @@ class Mission_Planner:
 
         min_safety_distance_enemy_drone = 3.0
 
-        x_cor_enemy = enemy_map_cell.get_x_cor()
-        y_cor_enemy = enemy_map_cell.get_y_cor()
+        x_cor_enemy = enemy_map_cell.x()
+        y_cor_enemy = enemy_map_cell.y()
 
-        x_cor_ego = ego_map_cell.get_x_cor()
-        y_cor_ego = ego_map_cell.get_y_cor()
+        x_cor_ego = ego_map_cell.x()
+        y_cor_ego = ego_map_cell.y()
         # robustness_value = 0
 
         # robustness_min = -1 * min_safety_distance_enemy_drone

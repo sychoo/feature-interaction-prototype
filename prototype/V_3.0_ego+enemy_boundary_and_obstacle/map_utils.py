@@ -1,16 +1,45 @@
 # map_utils.py
 # support map objects, including map cells and map
+
 # Tue Oct  6 22:28:12 EDT 2020
 # Designed with ❤️ by Simon Chu
 
 import math
 
-# Map_Cell object is instantiated on the map
-class Map_Cell:
+from algorithms import Algorithms
+
+# support coordinates
+class Coord:
     def __init__(self, x_cor, y_cor):
-        # stores the x and y coordinates corresponding to each cell
         self.x_cor = x_cor
         self.y_cor = y_cor
+    
+    def x(self):
+        return self.x_cor
+    
+    def y(self):
+        return self.y_cor
+    
+    def set_x(self, x_cor):
+        self.x_cor = x_cor
+    
+    def set_y(self, y_cor):
+        self.y_cor = y_cor
+
+    def __repr__(self):
+        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + ")"
+
+    def __str__(self):
+        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + ")"   
+
+# Map_Cell object is instantiated on the map
+class Map_Cell:
+    # def __init__(self, x_cor, y_cor):
+    def __init__(self, coord):
+        # stores the x and y coordinates corresponding to each cell
+        # self.x_cor = x_cor
+        # self.y_cor = y_cor
+        self.coord = coord
 
         self.attributes = dict() # Python dictionary, stores different attribute/property about the heatmap cells
         self.output = 0 # specical variable to specify the value output to the heatmap. Initialized to 0 by default
@@ -32,12 +61,16 @@ class Map_Cell:
         # print(str(self.attributes))
 
     # get x_cor for the cell
-    def get_x_cor(self):
-        return self.x_cor
+    def x(self):
+        return self.coord.x()
     
     # get y_cor for the cell
-    def get_y_cor(self):
-        return self.y_cor
+    def y(self):
+        return self.coord.y()
+
+    # get the Coord object
+    def get_coord(self):
+        return self.coord
 
     # set the output for the heatmap
     def set_output(self, output):
@@ -48,13 +81,15 @@ class Map_Cell:
         return self.output
 
     def distance_to(self, map_cell):
-        return math.sqrt((map_cell.get_x_cor() - self.get_x_cor())**2 + (map_cell.get_y_cor() - self.get_y_cor())**2)
+        # return math.sqrt((map_cell.x() - self.x())**2 + (map_cell.y() - self.y())**2)
+        return Algorithms.distance_between_2_points(self.get_coord(), map_cell.get_coord())
+
 
     def __str__(self):
-        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + ") : " + str(self.output)
+        return "(" + str(self.x()) + ", " + str(self.y()) + ") : " + str(self.output)
 
     def __repr__(self):
-        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + ") : " + str(self.output)
+        return "(" + str(self.x()) + ", " + str(self.y()) + ") : " + str(self.output)
 
 
 
@@ -70,7 +105,7 @@ class Map:
         # this data structure flattens the 2D array to 1D, from left to right (increment x_cor, then increment y_cor)
         for y in range(height):
             for x in range(width):
-                new_map_cell = Map_Cell(x, y)
+                new_map_cell = Map_Cell(Coord(x, y))
                 self.internal_map.append(new_map_cell)
 
         # debug
@@ -100,70 +135,71 @@ class Map:
     def get_height(self):
         return self.height
 
-    def get_map_cell(self, x_index, y_index):
+    # def get_map_cell(self, x_index, y_index):
+    def get_map_cell(self, coord):
         # check the range for the x and y index
-        if self.check_index_bound(x_index, y_index):
+        if self.check_index_bound(coord):
             pass
         else:
             raise RuntimeError("index out of bound, unable to obtain map cell")
 
         # translate 2D array index to flattened 1D array index
-        transformed_index = y_index * self.width + x_index
+        transformed_index = coord.y() * self.width + coord.x()
         return self.internal_map[transformed_index]
 
-    def check_index_bound(self, x_index, y_index):
+    def check_index_bound(self, coord):
         # check whether the x and y index is within the bound of the map
-        return x_index >= 0 and x_index < self.width and y_index >= 0 and y_index < self.height
+        return coord.x() >= 0 and coord.x() < self.width and coord.y() >= 0 and coord.y() < self.height
 
     def get_output_map(self):
         # generate the output map for seaborn (after manipulating the special output variable)
-        return [ [ self.get_map_cell(x, y).get_output() for x in range(self.width) ] for y in range(self.height) ]
+        return [ [ self.get_map_cell(Coord(x, y)).get_output() for x in range(self.width) ] for y in range(self.height) ]
 
     def find_neighbors_8(self, map_cell):
         neighbor_dict = {}
 
-        x_cor = map_cell.get_x_cor()
-        y_cor = map_cell.get_y_cor()
+        x_cor = map_cell.x()
+        y_cor = map_cell.y()
 
         new_x_cor = x_cor
         new_y_cor = y_cor - 1
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["north"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["north"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         new_x_cor = x_cor
         new_y_cor = y_cor + 1
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["south"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["south"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         new_x_cor = x_cor + 1
         new_y_cor = y_cor
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["east"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["east"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         new_x_cor = x_cor - 1
         new_y_cor = y_cor
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["west"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["west"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         new_x_cor = x_cor + 1
         new_y_cor = y_cor - 1
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["northeast"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["northeast"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         new_x_cor = x_cor + 1
         new_y_cor = y_cor + 1
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["southeast"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["southeast"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         new_x_cor = x_cor - 1
         new_y_cor = y_cor + 1
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["southwest"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["southwest"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         new_x_cor = x_cor - 1
         new_y_cor = y_cor - 1
-        if self.check_index_bound(new_x_cor, new_y_cor):
-            neighbor_dict["northwest"] = self.get_map_cell(new_x_cor, new_y_cor)
+        if self.check_index_bound(Coord(new_x_cor, new_y_cor)):
+            neighbor_dict["northwest"] = self.get_map_cell(Coord(new_x_cor, new_y_cor))
 
         return neighbor_dict
 
