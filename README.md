@@ -1,4 +1,6 @@
 this is a prototype using the boundary invariant
+- Support boundary and obstacles, generate heatmap with respect to each
+  cell and the boundary, as well as each cell and the obstacle
 
 # Parameters that are interesting to adjust
 - whether to return scaled_robustness_value or
