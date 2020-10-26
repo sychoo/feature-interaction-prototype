@@ -42,7 +42,7 @@ class Mission_Planner:
 
         # when step is 0, all drones are at the initial location
         for drone in self.drones:
-            self.flight_path.add_coords_x_y(drone.get_identifier(), drone.get_x_cor(), drone.get_y_cor())
+            self.flight_path.add_coords_x_y(drone.get_identifier(), drone.get_current_coord())#drone.get_x_cor(), drone.get_y_cor())
 
         total_steps = steps
         steps = 1

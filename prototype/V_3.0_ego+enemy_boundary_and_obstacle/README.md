@@ -1,3 +1,6 @@
+Documentation
+- [Python Code Style (Google)](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings)
+- [Sphinx Napoleon Extension Specs](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/)
 1. encode flight pattern
   - scale it up from smaller maps?
   - use some kind of vector space? Mathematical notation?

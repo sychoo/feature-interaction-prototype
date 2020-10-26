@@ -49,10 +49,10 @@ class Signal_Estimator:
         current_execution_signal_element_data = dict()
         
         for drone in self.drones:
-            current_x = drone.get_x_cor()
-            current_y = drone.get_y_cor()
+            # current_x = drone.get_x_cor()
+            # current_y = drone.get_y_cor()
 
-            current_execution_signal_element_data[drone.get_identifier()] = {"current_coords": {"x_cor": current_x, "y_cor": current_y}}
+            current_execution_signal_element_data[drone.get_identifier()] = {"current_coord": drone.get_current_coord()}
 
         # steps = 0
         current_execution_signal_element_data = Signal_Element(0, current_execution_signal_element_data)

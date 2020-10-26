@@ -8,7 +8,7 @@ import statistics # for statistical analysis (mean, variance, etc)
 import numpy as np # numpy for array generations
 
 # import from my support libaries
-from map_utils import Map, Map_Cell
+from map_utils import Map, Map_Cell, Coord
 from drone_utils import EgoDrone, EnemyDrone
 from flight import Mission_Planner
 from signal_utils import Signal_Estimator, STL, Robustness, Signal_Element
@@ -44,8 +44,8 @@ if __name__ == "__main__":
     enemy_drone = EnemyDrone(mission_obj.get_internal_map())
 
     # set the initial positions for teh ego drone and the enemy drone
-    ego_drone.set_initial_location(0, 20)
-    enemy_drone.set_initial_location(5, 5)
+    ego_drone.set_init_coord(Coord(0, 20))
+    enemy_drone.set_init_coord(Coord(5, 5))
 
     # add enemy drone and ego drone
     mission_obj.add_drone(ego_drone)
@@ -83,8 +83,8 @@ if __name__ == "__main__":
     enemy_init_x = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["x_cor"]
     enemy_init_y = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["y_cor"]
 
-    est_ego_drone.set_initial_location(ego_init_x, ego_init_y)
-    est_enemy_drone.set_initial_location(enemy_init_x, enemy_init_y)
+    est_ego_drone.set_init_coord(Coord(ego_init_x, ego_init_y))
+    est_enemy_drone.set_init_coord(Coord(enemy_init_x, enemy_init_y))
 
     signal_estimator.add_drone(est_ego_drone)
     signal_estimator.add_drone(est_enemy_drone)

@@ -123,11 +123,11 @@ class Map:
         else:
             raise RuntimeError("map variable has not been initialized.")
 
-    def get_output(self, x_index, y_index):
-        return self.get_map_cell(x_index, y_index).get_output()
+    def get_output(self, coord):
+        return self.get_map_cell(coord).get_output()
 
-    def set_output(self, x_index, y_index, output):
-        self.get_map_cell(x_index, y_index).set_output(output)
+    def set_output(self, coord, output):
+        self.get_map_cell(coord).set_output(output)
 
     def get_width(self):
         return self.width

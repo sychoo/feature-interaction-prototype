@@ -30,8 +30,8 @@ class Path:
             self.coord_list[drone_identifier] = list()
         
     
-    def add_coords_x_y(self, drone_identifier, x_cor, y_cor):
-        self.coord_list[drone_identifier].append((x_cor, y_cor))
+    def add_coords_x_y(self, drone_identifier, coord):
+        self.coord_list[drone_identifier].append(coord)
 
     def add_coords(self, response_data):
         # extract "current_map_cell" key's value from the response_data
@@ -45,14 +45,17 @@ class Path:
             # {"EnemyDrone": [(1, 1), (2, 2)], "EgoDrone": [(1, 2), (2, 2)]}
             #                 ------> tuple of integer
             # convert the list of map cells in self.coord_list to numeric values
-            self.coord_list[drone_identifier].append((response_current_map_cell.x(), response_current_map_cell.y()))
-
+            # self.coord_list[drone_identifier].append((response_current_map_cell.x(), response_current_map_cell.y()))
+            self.coord_list[drone_identifier].append(response_current_map_cell.get_coord())
             
     def display_coords(self):
         # helper function to display the coordinates collected from the execution cycle
         print(self.coord_list)
 
+    
     def linearize_coord_list(self):
+        # function to linearize coord list
+        # separate x and y coordinates
         self.coord_list_linearized = dict()
         for drone_identifier in self.drone_identifier_list:
             # initialize the dictionary
@@ -64,8 +67,8 @@ class Path:
 
             # separate x and y coordinates data
             for coords in self.coord_list[drone_identifier]:
-                x_cor_data.append(coords[0])
-                y_cor_data.append(coords[1])
+                x_cor_data.append(coords.x())
+                y_cor_data.append(coords.y())
             
             self.coord_list_linearized[drone_identifier]["x_cor_data"] = x_cor_data
             self.coord_list_linearized[drone_identifier]["y_cor_data"] = y_cor_data

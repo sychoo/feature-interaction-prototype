@@ -34,9 +34,43 @@
 
 - ~!~ ability to set the speed for each drones
 
-- signal estmator shoudl be put in the ego drone
+- signal estmator should be put in the ego drone
+
 - !!connect STL to signal estimator
 
 - Incorporate the concept of Radar
+
+- Standardaize response data nad signal element
+
+- Continuation Integration haha probably just run the unit test
+
+- Documentation Standard: Napoleon Sphinx extension: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/
+
+https://www.sphinx-doc.org/en/master/usage/quickstart.html
+
+https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings
+
+- convert the docs to rst (reStructured Text)
+- sphinx-apidoc -f -o <output-directory> <project-directory> 
+
+- sphinx-build -b html sourcedir builddir
+
+- quickstart: https://pythonhosted.org/an_example_pypi_project/sphinx.html
+
+
+
+
+
+- Q and A: can't import numpy in documentation Sphinx
+
+https://stackoverflow.com/questions/15889621/sphinx-how-to-exclude-imports-in-automodule
+
+
+sphinx-apidoc -f -o docs/source .
+- command "make install"
+- things changed: system path
+- add modules in index.rst (like this https://www.youtube.com/watch?v=b4iFyrLQQh4&t=105s)
+
+- gitignore file
 
 - [X] Finished

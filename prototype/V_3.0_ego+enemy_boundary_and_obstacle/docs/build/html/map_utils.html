@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>map_utils module &#8212; feature-interaction  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="path_utils module" href="path_utils.html" />
+    <link rel="prev" title="main module" href="main.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-map_utils">
+<span id="map-utils-module"></span><h1>map_utils module<a class="headerlink" href="#module-map_utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="map_utils.Coord">
+<em class="property">class </em><code class="sig-prename descclassname">map_utils.</code><code class="sig-name descname">Coord</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_cor</span></em>, <em class="sig-param"><span class="n">y_cor</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Coord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="map_utils.Coord.set_x">
+<code class="sig-name descname">set_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x_cor</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Coord.set_x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Coord.set_y">
+<code class="sig-name descname">set_y</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y_cor</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Coord.set_y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Coord.x">
+<code class="sig-name descname">x</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Coord.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Coord.y">
+<code class="sig-name descname">y</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Coord.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="map_utils.Map">
+<em class="property">class </em><code class="sig-prename descclassname">map_utils.</code><code class="sig-name descname">Map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">width</span></em>, <em class="sig-param"><span class="n">height</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="map_utils.Map.check_index_bound">
+<code class="sig-name descname">check_index_bound</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.check_index_bound" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.find_neighbors_8">
+<code class="sig-name descname">find_neighbors_8</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">map_cell</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.find_neighbors_8" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.get_diagonal_length">
+<code class="sig-name descname">get_diagonal_length</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.get_diagonal_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.get_flattened_internal_map">
+<code class="sig-name descname">get_flattened_internal_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.get_flattened_internal_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.get_height">
+<code class="sig-name descname">get_height</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.get_height" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.get_map_cell">
+<code class="sig-name descname">get_map_cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.get_map_cell" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.get_output">
+<code class="sig-name descname">get_output</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.get_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.get_output_map">
+<code class="sig-name descname">get_output_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.get_output_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.get_width">
+<code class="sig-name descname">get_width</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.get_width" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.set_output">
+<code class="sig-name descname">set_output</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span></em>, <em class="sig-param"><span class="n">output</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.set_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.visualize_internal_map">
+<code class="sig-name descname">visualize_internal_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.visualize_internal_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map.visualize_output_map">
+<code class="sig-name descname">visualize_output_map</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map.visualize_output_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="map_utils.Map_Cell">
+<em class="property">class </em><code class="sig-prename descclassname">map_utils.</code><code class="sig-name descname">Map_Cell</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">coord</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="map_utils.Map_Cell.distance_to">
+<code class="sig-name descname">distance_to</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">map_cell</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.distance_to" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.get_attribute">
+<code class="sig-name descname">get_attribute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.get_attribute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.get_attribute_dict">
+<code class="sig-name descname">get_attribute_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.get_attribute_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.get_coord">
+<code class="sig-name descname">get_coord</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.get_coord" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.get_output">
+<code class="sig-name descname">get_output</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.get_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.has_attribute">
+<code class="sig-name descname">has_attribute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.has_attribute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.set_attribute">
+<code class="sig-name descname">set_attribute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.set_attribute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.set_output">
+<code class="sig-name descname">set_output</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output</span></em><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.set_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.x">
+<code class="sig-name descname">x</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.x" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="map_utils.Map_Cell.y">
+<code class="sig-name descname">y</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#map_utils.Map_Cell.y" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">feature-interaction</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">V_3.0_ego+enemy_boundary_and_obstacle</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="3d_map_utils.html">3d_map_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="STL.html">STL module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="algorithms.html">algorithms module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="drone_utils.html">drone_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flight.html">flight module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="main.html">main module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">map_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="path_utils.html">path_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="signal_utils.html">signal_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="unit_tests.html">unit_tests module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">V_3.0_ego+enemy_boundary_and_obstacle</a><ul>
+      <li>Previous: <a href="main.html" title="previous chapter">main module</a></li>
+      <li>Next: <a href="path_utils.html" title="next chapter">path_utils module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Simon Chu.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/map_utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
