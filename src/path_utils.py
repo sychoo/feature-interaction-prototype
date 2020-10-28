@@ -12,6 +12,12 @@ from map_utils import Coord
 import numpy as np
 
 class Path:
+    """
+    Attributes:
+        coord_list: dictionary that stores a list of flight path for different drones
+                    indexed by the identifier of the drones
+        message_list: list that stores messages broadcasted by ATC (Air Traffic Control)
+    """
     # Note that drone map is needed to determine how big the graph is
     def __init__(self, drone_identifier_list, drone_internal_map):
         # stores a list of drone identifiers
@@ -19,6 +25,9 @@ class Path:
 
         # stores the internal map of the drone
         self.drone_internal_map = drone_internal_map
+
+        # initialize message list
+        self.message_list = list()
 
         # stores the list of coordinate dictionary
         # {"EnemyDrone": [(1, 1), (2, 2)], "EgoDrone": [(1, 2), (2, 2)]}
@@ -30,7 +39,7 @@ class Path:
             self.coord_list[drone_identifier] = list()
         
     
-    def add_coords_x_y(self, drone_identifier, coord):
+    def add_coords(self, drone_identifier, coord):
         self.coord_list[drone_identifier].append(coord)
 
     def add_coords_by_shared_flight_data(self, shared_flight_data):
@@ -44,6 +53,16 @@ class Path:
 
         # debug
         # print(self.coord_list)
+
+    def add_message(self, message):
+        """append message to self.message_list"""
+        self.message_list.append(message)
+
+    def add_message_by_shared_flight_data(self, shared_flight_data):
+        """function to extract message from the "ATC" role in the shared_flight_data
+        and append it to self.message_list
+        """
+        self.message_list.append(shared_flight_data.get("ATC").get_message())
 
     def add_coords_by_response_data(self, response_data):
         # extract "current_map_cell" key's value from the response_data
@@ -115,7 +134,7 @@ class Path:
         ax.set_ylim(y_max, 0)
 
         # set the coordinate system (top left as origin!)
-
+        # this helper function will be executed everytime the plot refreshes
         def animate_helper(i):
             ax = plt.gca()
 
@@ -132,9 +151,21 @@ class Path:
                 else:
                     break
 
+            # the visualizer will keep executing even after exceeding the limit
+            # make sure to check bound
+            if (self.current_step < len(self.message_list)):
+                print("step = {0:3}".format(str(self.current_step)) + " message = " + self.message_list[self.current_step], flush=True)
+
+
             # increment current_step to get more data
             self.current_step += 1
 
+            # print the step information during the visualization
+            # print(self.current_step)
+            # print(self.message_list)
+
+
+        # start the animation
         animation = FuncAnimation(plt.gcf(), animate_helper, interval = 400)
 
         plt.legend()

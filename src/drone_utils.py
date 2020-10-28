@@ -126,6 +126,16 @@ class ATC_Flight_Data(Flight_Data):
             raise RuntimeError(
                 "key = " + str(key) + " does not exist in the flight data for ATC = " + str(self.id))
 
+    def get_message(self):
+        """get the message broadcasted for the execution"""
+        key = "message"
+        if key in self.data_dict.keys():
+            return self.data_dict[key]
+        else:
+            raise RuntimeError(
+                "key = " + str(key) + " does not exist in the flight data for ATC = " + str(self.id))
+
+
 
 # Drone object works together with the map
 # the drone decide for itself where it would like to go next
