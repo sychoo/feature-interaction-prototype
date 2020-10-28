@@ -74,3 +74,27 @@ sphinx-apidoc -f -o docs/source .
 - gitignore file
 
 - [X] Finished
+
+
+# To Do For Research Meeting Tomorrow:
+
+- [X] Get Distance_To_Enemy_Drone to work
+
+- Robustness score evaluation during runtime
+
+- implement signal estimator in the execution process, give feedbacks during runtime like
+    - "Violation of R1"
+    - "Violation of R2"
+    - "Violation of Both Features"
+
+- make the signal estimator generate certain duration of signal based on the range G\[begin, end\]() STL Expression 
+    - Signal_Estimator(STL_Expr()) # grab the "begin" and "end" attribute from the Global attribute
+
+- message board, get message from shared_flight_data -> ATC_Flight_Data -> "message" key -> message to display during the flight path visualization
+    - "Violation of R1"
+    - "Violation of R2"
+    - "Violation of Both Features"
+
+# Maybe Future Work
+
+- STL Compiler - Based on [Metrics for Signal Temporal Logic Formulae](https://arxiv.org/abs/1808.03315)

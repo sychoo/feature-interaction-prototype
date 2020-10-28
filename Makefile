@@ -1,3 +1,8 @@
+# Makefile that support Sphinx documentation generation
+
+# Command:
+# make html
+
 # Minimal makefile for Sphinx documentation
 #
 

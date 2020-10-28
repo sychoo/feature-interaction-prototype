@@ -9,19 +9,21 @@
 ```
 ├── README.md
 ├── docs : contains generated documentation
+    ├── build
+    ├── source
+    └── README.md
 ├── examples : contains example Python scripts
 ├── code_size.sh : bash script that recursively check the code size of the project
 └── src : contains source code of the project
-    ├── V_1.0_boundary_and_obstacle
-    ├── V_2.0_XXX
-    ├── V_3.0_XXX
-    └── ...
+
 ```
 You can switch between the branches to see different release or version of the drone simulator
 
 ## Documentation
 - [Python Code Style (Google)](https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings)
 - [Sphinx Napoleon Extension Specs](https://sphinxcontrib-napoleon.readthedocs.io/en/latest/)
+- Path Animation [2D](https://www.youtube.com/watch?v=Ercd-Ip5PfQ) [3D](https://www.youtube.com/watch?v=sRYI5egdWLo) [3D unzip password: thankyou]
+- MissionApp [Repository](https://bitbucket.org/gamoreno/missionapp)
 
 ## How does it work?
 1. encode flight pattern
