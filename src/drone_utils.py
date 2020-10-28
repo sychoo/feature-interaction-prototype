@@ -9,10 +9,123 @@ import parser
 from map_utils import Coord
 
 
-class Drone_Data():
-    """class to store shared drone data during drone executions
+class Shared_Flight_Data():
+    """store collections of shared drone data during drone executions
+
+    It is similar to Signal class, because it is allowed to store objects other than numeric values
+
+    Attribute:
+        flight_data_list: stores a dictionary of drone data indexed using the drone identifier
+
+    Sample Shared Flight Data
+    {"Ego": Drone_Flight_Data(), "Enemy": Drone_Flight_Data(), "ATC": ATC_Flight_Data()}
     """
-    pass
+
+    def __init__(self):
+        self.flight_data_dict = dict()
+
+    def count(self):
+        """get the number of drones in the shared flight data"""
+        return len(self.flight_data_dict)
+
+    def add(self, flight_data):
+        """add new entry to the drone_data_dict"""
+        self.flight_data_dict[flight_data.get_id()] = flight_data
+
+    def get(self, id):
+        """get the flight data by the identifier of the drone"""
+        if id in self.flight_data_dict.keys():
+            return self.flight_data_dict[id]
+        else:
+            raise RuntimeError("id = " + str(id) +
+                               " does not exist in the shared flight data.")
+    def __str__(self):
+        str_builder = "Shared Flight Data: \n"
+
+        for key in self.flight_data_dict.keys():
+            str_builder += str(self.flight_data_dict[key]) + "\n"
+
+        return str_builder
+
+class Flight_Data(metaclass=abc.ABCMeta):
+    """store shared drone data during drone executions, contains critical drone parameters to understand the status of the drone,
+    and communicate status between drones.
+
+    It is similar to Signal Element class, because it is allowed to store objects other than numeric values
+
+    Attribute:
+        id: identifier of the flight data, it is either the identifier associated with the drone
+            or the identifier associated with the air traffic control
+        data: A dictionary that contains essential flight data of the drone
+
+    Flight_Data can be either Drone_Flight_Data or ATC_Flight_Data
+    """
+
+    def __init__(self, id, data_dict=dict()):
+        self.id = id
+        self.data_dict = data_dict
+
+    def get_id(self):
+        return self.id
+
+    # def add_data()
+    def get_data(self):
+        return self.data_dict
+
+    def get_data_by_key(self, key):
+        if key in self.data_dict.keys():
+            return self.data_dict[key]
+        else:
+            raise RuntimeError(
+                "key = " + str(key) + " does not exist in the flight data for drone = " + str(self.id))
+
+    def __str__(self):
+        return "id = " + str(self.id) + ", data = " + str(self.data_dict)
+
+class Drone_Flight_Data(Flight_Data):
+    """flight data for the drone, inherit Flight_Data class
+
+    Attributes
+        data_dict: a dictionary containing essential flight data, i.e. {"map_cell": ...}
+        id: a string containing the identifier of the drone, i.e. "Ego"
+    """
+
+    def get_map_cell(self):
+        """get the current step for the execution"""
+        key = "map_cell"
+        if key in self.data_dict.keys():
+            return self.data_dict[key]
+        else:
+            raise RuntimeError(
+                "key = " + str(key) + " does not exist in the flight data for drone = " + str(self.id))
+
+    def get_coord(self):
+        """get the current step for the execution"""
+        key = "map_cell"
+        if key in (self.data_dict).keys():
+            return (self.data_dict[key]).get_coord()
+        else:
+            raise RuntimeError(
+                "key = " + str(key) + " does not exist in the flight data for drone = " + str(self.id))
+
+
+class ATC_Flight_Data(Flight_Data):
+    """flight data for air traffic control, inherit Flight_Data class
+
+    Sample ATC Flight Data
+
+    {"step": ...}
+    """
+
+    def get_step(self):
+        """get the current step for the execution"""
+        key = "step"
+        if key in self.data_dict.keys():
+            return self.data_dict[key]
+        else:
+            raise RuntimeError(
+                "key = " + str(key) + " does not exist in the flight data for ATC = " + str(self.id))
+
 
 # Drone object works together with the map
 # the drone decide for itself where it would like to go next
@@ -51,14 +164,24 @@ class Drone(metaclass=abc.ABCMeta):
         # abstact method to execute everytime an execution cycle just finished
         pass
 
+    def receive_shared_flight_data(self, shared_flight_data):
+        self.shared_flight_data = shared_flight_data
+    
+    # deprecated
     def receive_response_data(self, response_data):
         # receive response data from the broadcaster in the execution loop
         self.response_data = response_data
 
+    # deprecated
     def has_response_data(self):
         # check whether response data is initialized
         return hasattr(self, "response_data")
 
+    def has_shared_flight_data(self):
+        # check whether response data is initialized
+        return hasattr(self, "shared_flight_data")
+
+    # deprecated
     def get_response_data(self):
         # fetch the response data received from the broadcaster in the run method in the MissionPlanner
         if hasattr(self, "response_data"):
@@ -66,6 +189,14 @@ class Drone(metaclass=abc.ABCMeta):
         else:
             raise RuntimeError(
                 "response_data variable has not been initialized.")
+
+    def get_shared_flight_data(self):
+        # fetch the response data received from the broadcaster in the run method in the MissionPlanner
+        if hasattr(self, "shared_flight_data"):
+            return self.shared_flight_data
+        else:
+            raise RuntimeError(
+                "shared_flight_data variable has not been initialized.")
 
     def init_attribute(self):
         # initialize the attribute
@@ -77,6 +208,15 @@ class Drone(metaclass=abc.ABCMeta):
         self.identifier = identifier
 
     def get_identifier(self):
+        # get the identifier for the drone
+        if hasattr(self, "identifier"):
+            return self.identifier
+        else:
+            raise RuntimeError(
+                "drone identifier variable has not been initialized.")
+
+    # duplicate for self.get_identifier
+    def get_id(self):
         # get the identifier for the drone
         if hasattr(self, "identifier"):
             return self.identifier
@@ -171,10 +311,12 @@ class EnemyDrone(Drone):
 
         # Note that the response data may not be intialized the first time the cycle executes.
         # the next move of the enemy drone will depend on the previous location of the ego drone
-        if self.has_response_data():
+        # if self.has_response_data():
+        if self.has_shared_flight_data():
 
             # case when the response data has been received
-            response_data = self.get_response_data()
+            # response_data = self.get_response_data()
+            shared_flight_data = self.get_shared_flight_data()
 
             # get the Map_Cell on the current location
             current_map_cell = self.internal_map.get_map_cell(
@@ -194,8 +336,9 @@ class EnemyDrone(Drone):
             # ego_drone_x_cor = response_data["Ego"]["current_x_cor"]
             # ego_drone_y_cor = response_data["Ego"]["current_y_cor"]
 
-            ego_drone_coord = response_data["Ego"]["current_map_cell"].get_coord(
-            )
+            # ego_drone_coord = response_data["Ego"]["current_map_cell"].get_coord(
+            # )
+            ego_drone_coord = shared_flight_data.get("Ego").get_map_cell().get_coord()
             ego_drone_map_cell = self.get_internal_map().get_map_cell(ego_drone_coord)
 
             # initialize the min distance to the diagonal length of the map
@@ -225,6 +368,9 @@ class EnemyDrone(Drone):
     def emit_response_data(self):
         # return {"current_x_cor": self.get_x_cor(), "current_y_cor": self.get_y_cor(), "current_map_cell": self.get_current_location_map_cell()}
         return {"current_map_cell": self.get_current_location_map_cell()}
+
+    def emit_flight_data(self):
+        return Drone_Flight_Data(self.get_id(), {"map_cell": self.get_current_location_map_cell()})
 
 # EgoDrone class inherits the Drone parent class
 
@@ -269,6 +415,9 @@ class EgoDrone(Drone):
     def emit_response_data(self):
         # return {"current_x_cor": self.get_x_cor(), "current_y_cor": self.get_y_cor(), "current_map_cell": self.get_current_location_map_cell()}
         return {"current_map_cell": self.get_current_location_map_cell()}
+
+    def emit_flight_data(self):
+        return Drone_Flight_Data(self.get_id(), {"map_cell": self.get_current_location_map_cell()})
 
     # def create_drone("ego/enemy", tuple of initial position on the map, map_object)
     # check if the initial position is valid on the map

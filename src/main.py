@@ -11,8 +11,8 @@ import numpy as np # numpy for array generations
 from map_utils import Map, Map_Cell, Coord
 from drone_utils import EgoDrone, EnemyDrone
 from flight import Mission_Planner
-from signal_utils import Signal_Estimator, STL, Robustness, Signal_Element
-
+from signal_utils import Signal_Estimator, Robustness, Signal_Element
+import STL
 
 if __name__ == "__main__":
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     ##### flight estimation testing #####
     # estimate flight path with the fixed mission (given start position, drones, and lookahead time)
     # current_signal = {"time": 0, "Ego": {"current_coords": (0, 20)}, "Enemy": {"current_coords": (0, 5)}}#Signal_Element()
-    current_signal_element = Signal_Element(0, {"Ego": {"current_coords": {"x_cor": 0, "y_cor": 20}, "init_coords": {"x_cor": 0, "y_cor": 20}}, "Enemy": {"current_coords": {"x_cor": 0, "y_cor": 5}, "init_coords": {"x_cor": 0, "y_cor": 5}}})
+    current_signal_element = Signal_Element(0, {"Ego": {"current_coord": Coord(0, 20), "init_coord": Coord(0, 20)}, "Enemy": {"current_coord": Coord(0, 5), "init_coord": Coord(0, 5)}})
     signal_estimator = Signal_Estimator(current_signal_element)
 
     # create identical maps for drones
@@ -78,13 +78,16 @@ if __name__ == "__main__":
     # ! no work around due to how flight mission/path is encoded
     # to-do: change how flight mission is encoded
 
-    ego_init_x = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["x_cor"]
-    ego_init_y = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["y_cor"]
-    enemy_init_x = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["x_cor"]
-    enemy_init_y = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["y_cor"]
+    # ego_init_x = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["x_cor"]
+    # ego_init_y = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["y_cor"]
+    # enemy_init_x = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["x_cor"]
+    # enemy_init_y = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["y_cor"]
 
-    est_ego_drone.set_init_coord(Coord(ego_init_x, ego_init_y))
-    est_enemy_drone.set_init_coord(Coord(enemy_init_x, enemy_init_y))
+    ego_init_coord = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coord")
+    enemy_init_coord = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coord")
+
+    est_ego_drone.set_init_coord(ego_init_coord)
+    est_enemy_drone.set_init_coord(enemy_init_coord)
 
     signal_estimator.add_drone(est_ego_drone)
     signal_estimator.add_drone(est_enemy_drone)
@@ -95,14 +98,26 @@ if __name__ == "__main__":
     # maybe change the time_span
     estimated_signal = signal_estimator.get_signal_estimation()
 
-    # debugger
+    # debugger, testing signal estimator
     print(estimated_signal)
 
 
 
     # ideal function invocation
-    # stl_formula_1 = STL() # distance_to_boundary > 3.0
-    # stl_formula_2 = STL() # distance_to_enemy > 3.0
+    # G[0, 10](distanceToBoundary > 3)
+
+    stl_formula_1 = STL.Global(1, 10, STL.Primitives.Greater_Than(STL.Helper.Distance_To_Boundary(), 3)) # distance_to_boundary > 3.0
+    # 1, 10 - False - There are violations of the STL formula in between 1 and 10
+    # 6, 10 - True - There are not violations of the STL formula in between 6 and 10
+    stl_formula_2 = STL.Global(1, 5, STL.Primitives.Greater_Than(STL.Helper.Distance_To_Enemy_Drone(), 3)) # distance_to_enemy > 3.0
+    # 1, 5 - True - There are no violation of the STL formula between 1 and 5
+    # 6, 10 - False - There are violations of the STL formula in between 6 and 10
+
+    # evalute the STL formula with respect to the estimated signal
+
+    print(stl_formula_1.eval(estimated_signal, {"internal_map": est_internal_map}))
+    print(stl_formula_2.eval(estimated_signal))
+    
 
     # robustness_stl_formula_1 = Robustness(stl_formula_1, estimated_signal).evaluate()
     # robustness_stl_formula_2 = Robustness(stl_formula_2, estimated_signal)
@@ -122,16 +137,22 @@ if __name__ == "__main__":
 
     # print("STL 1: " + str(robustness_stl_formula_1))
     # print("STL 2: " + str(robustness_stl_formula_2))
-    robustness_stl_formula_1 = STL().evaluate_boundary_robustness(estimated_signal, 21, 21)
-    robustness_stl_formula_2 = STL().evaluate_enemy_robustness(estimated_signal, 21, 21)
+    # robustness_stl_formula_1 = STL().evaluate_boundary_robustness(estimated_signal, 21, 21)
+    # robustness_stl_formula_2 = STL().evaluate_enemy_robustness(estimated_signal, 21, 21)
 
-    print("STL 1: " + str(robustness_stl_formula_1))
-    print("STL 2: " + str(robustness_stl_formula_2))
 
-    if robustness_stl_formula_1 < 0 and robustness_stl_formula_2 < 0:
-        print("Detected conflicts between requirements!")
-    else:
-        print("No conflict between requirements.")
+
+
+    # debug
+    # print("STL 1: " + str(robustness_stl_formula_1))
+    # print("STL 2: " + str(robustness_stl_formula_2))
+
+    # if robustness_stl_formula_1 < 0 and robustness_stl_formula_2 < 0:
+    #     print("Detected conflicts between requirements!")
+    # else:
+    #     print("No conflict between requirements.")
+
+
     ##### /flight estimation testing #####
 
     # display the initial output to show the path

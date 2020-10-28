@@ -33,7 +33,19 @@ class Path:
     def add_coords_x_y(self, drone_identifier, coord):
         self.coord_list[drone_identifier].append(coord)
 
-    def add_coords(self, response_data):
+    def add_coords_by_shared_flight_data(self, shared_flight_data):
+        # debug
+        # print(str(shared_flight_data))
+
+        # loop through all drones included in the flight path visualizer
+        for drone_identifier in self.drone_identifier_list:
+            drone_coord = shared_flight_data.get(drone_identifier).get_coord()
+            self.coord_list[drone_identifier].append(drone_coord)
+
+        # debug
+        # print(self.coord_list)
+
+    def add_coords_by_response_data(self, response_data):
         # extract "current_map_cell" key's value from the response_data
         for drone_identifier in self.drone_identifier_list:
 
@@ -110,6 +122,7 @@ class Path:
             drone_count = 0
             drone_max = len(self.drone_identifier_list)
 
+            # make one line correspond to one drone
             for line in ax.lines:
                 # specify each of the line data (note that the order matters)
                 if drone_count < drone_max:

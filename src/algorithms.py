@@ -1,13 +1,30 @@
+# algorithms.py
+# file to provide algorithm support
+
+# Mon Oct 26 21:45:02 EDT 2020
+# Designed with ❤️ by Simon Chu
+
 # include calculating the min distance from the coordinate (x, y) to the boundary (for rectangular map)
 # include calculating the distance between the ego drone and the enemy drone
 # to-do refactor the code from flight.py to use the algorithms here
 
 import math
-# from map_utils import Coord
+# from map_utils import Coord # note that coords cannot be imported because of circular import
 
 class Algorithms:
+    """provide algorithm support to prevent repetitive definition of trivial algorithms
+    """
     @staticmethod
     def min_distance_to_boundary(coord, internal_map):
+        """calculate the minimum distance between a coordinate and the boundary of a 2D map
+
+        Args:
+            coord (Coord): the 2D coordinate of a point
+            internal_map (Map): the map used to calculate the distance
+
+        Returns:
+            int: the minmum distance from the arbitrary point to the boundary of the map
+        """
         # calculate the minimum distance to the boundary
 
         # get the width and height of the map
@@ -33,4 +50,13 @@ class Algorithms:
 
     @staticmethod
     def distance_between_2_points(coord_1, coord_2):
+        """calculate the the distance between 2 points
+
+        Args:
+            coord_1 (Coord): the first coordinate
+            coord_2 (Coord): the second coordinate
+
+        Returns:
+            int: the distance between two coordinates
+        """
         return math.sqrt((coord_1.x() - coord_2.x()) ** 2 + (coord_1.y() - coord_2.y()) ** 2)

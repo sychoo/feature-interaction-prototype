@@ -4,8 +4,14 @@
 # Wed Oct 21 20:46:51 EDT 2020
 # Designed with ❤️ by Simon Chu
 
-# support 3D coordinates
-class Coords:
+class Coord_3D:
+    """support 3D coordinate system
+
+    Attributes:
+        x: the x coordinate
+        y: the y coordinate
+        z: the z coordinate
+    """
     def __init__(self, x_cor, y_cor, z_cor):
         self.x_cor = x_cor
         self.y_cor = y_cor
@@ -30,7 +36,7 @@ class Coords:
         self.z_cor = z_cor
         
     def __repr__(self):
-        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + ")"
+        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + str(self.z_cor) + ")"
 
     def __str__(self):
-        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + ")"   
+        return "(" + str(self.x_cor) + ", " + str(self.y_cor) + str(self.z_cor) + ")"   
