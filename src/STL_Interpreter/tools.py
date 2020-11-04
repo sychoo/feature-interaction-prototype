@@ -7,6 +7,31 @@ from io import StringIO
 
 class Tools:
     @staticmethod
+    def extract_raw_program_string(string):
+        """extract raw program string from string, get rid of all single-line whitespaces"""
+        # initialize line list
+        line_list = list()
+
+        # split the program with delimiter \n
+        splited_raw_program_string = string.split("\n")
+
+        for line in splited_raw_program_string:
+
+            # check whether the line only consist of whitespaces
+            if not (line.isspace() or line == ""):
+                line_list.append(line)
+        
+        # concatenate with (list of) lines with \n
+        raw_program_string = "\n".join(line_list)
+
+        # add \n at the end if there isn't any
+        if raw_program_string[-1] != "\n":
+            raw_program_string += "\n"
+            
+        return raw_program_string
+
+
+    @staticmethod
     def get_raw_program_string(program_file):
         """get the raw program string based on the program_file given. It will get rid of all single line \n's in the program"""
         # initialize line list
@@ -15,8 +40,12 @@ class Tools:
         # open the program file with read permission, get the line stream
         with open(program_file, "r") as program_file_line_stream:
             for line in program_file_line_stream:
-                if line != "\n":
+
+                # check whether the line only consist of whitespaces
+                if not (line.isspace()):
                     line_list.append(line)
+
+        # print(line_list) #debug
 
         # concatenate the (list of) lines of the program
         raw_program_string = "".join(line_list)
@@ -36,12 +65,24 @@ class Tools:
 
     @staticmethod
     def check_suffix(program_file_name, suffix=".stl"):
-        """check suffix of file name supplied. return boolean value that represent whether the file name conform with the suffix"""
+        """check suffix of file name supplied. return boolean value that represent whether the file name conform with the suffix
+        set default suffix to .stl
+        """
+
         is_correct_suffix = program_file_name.endswith(suffix)
         if is_correct_suffix:
             return
         else:
             Tools.print_warning("Invalid file name. File must end with .stl\n")
+            exit(0)
+
+    @staticmethod
+    def check_token_length(token_stream):# # find the number of tokens
+        token_num = 0
+        for _ in token_stream:
+            token_num += 1
+        
+        if token_num <= 0:
             exit(0)
 
 # https://stackoverflow.com/questions/2414667/python-string-class-like-stringbuilder-in-c

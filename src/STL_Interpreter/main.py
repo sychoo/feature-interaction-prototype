@@ -28,7 +28,7 @@ from signal import signal, SIGINT
 
 from lexer import Lexer
 from parser import Parser
-import ast
+import AST
 
 INTERPRETER_VERSION = "1.0.0"
 
@@ -52,7 +52,7 @@ class Interpreter:
     Attributes:
         program_file: a string that stores the program to be interpreted
     """
-    
+
     def __init__(self, program_file=None):
         """interpret the program file given"""
         # accept the parameters if it is given
@@ -126,15 +126,22 @@ class Interpreter:
         lexer = Lexer()
         token_stream = lexer.lex(raw_program_string)
 
+        # replica of token stream for checking the length
+        # since token stream can only be looped once, we have to replicate it
+        token_stream_replica = lexer.lex(raw_program_string)
+
+        # find the length of the token stream
+        Tools.check_token_length(token_stream_replica)
+        
         # create parser
         parser = Parser()
-        parsed_ast = parser.parse(token_stream)
+        parsed_AST = parser.parse(token_stream)
 
         # start the type checking process
-        parsed_ast.typecheck(ast.Type_Context.get_empty_context())
+        parsed_AST.typecheck(AST.Type_Context.get_empty_context())
 
         # start the evaluation process
-        parsed_ast.eval(ast.Eval_Context.get_empty_context())
+        parsed_AST.eval(AST.Eval_Context.get_empty_context())
 
 
 def main():

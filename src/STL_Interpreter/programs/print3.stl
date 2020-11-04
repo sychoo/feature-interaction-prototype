@@ -1,0 +1,32 @@
+
+        // 2020-11-03 20:24:09
+        // Simon Chu
+
+        // println with semicolon
+        println 1;
+        println 1.0;
+        println true;
+        println "hello, world!";
+        println false;
+
+        // println without semicolon
+        println 1
+        println 1.0
+        println true
+        println false
+        println "hello, world!"
+
+        // print with semicolon
+        print 1;
+        print 1.0;
+        print true;
+        print false;
+        print "hello, world!";
+
+        // print without semicolon
+        print 1
+        print 1.0
+        print true
+        print false
+
+        

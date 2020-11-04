@@ -89,12 +89,6 @@ Robust(<STL-formula>, <signal>, <time-start>)
 - \; (optional if separated by new line character, required if code are on the same line)
 - \n
 
-## Program Pre-processing:
-1. Tool.get_raw_program_string
-    - get rid of all single line new lines within the program
-2. Lexer class in lexer.py
-    - ignore all white spaces other than \n -- new line character (equivalent to \s - \n)
-    - ignore all single-line and multi-line comments as well as the white spaces trailing them (so that it won't cause errors)
 
 **Important Notes**
 - Note that both \n -- new line character and ; -- semicolon can separate values, expressions and statements
@@ -104,3 +98,6 @@ Robust(<STL-formula>, <signal>, <time-start>)
 #### Coding standard
 Stringify:
 Val: ( 1.5, "Float" )
+
+to_str() class function is used to present output during program execution
+__str__() is for debugging purpose, it is used to represent the object

@@ -4,13 +4,13 @@
 import abc
 
 from tools import String_Builder
-
+from sys import stdout
 
 class Eval_Context:
     """store evaluation context, specifically dictionary containing identifier name
     and the value associated with it
     """
-    
+
     @staticmethod
     def get_empty_context():
         return Eval_Context()
@@ -58,6 +58,7 @@ class Node(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def __str__(self):
+        """method to display the string representation of the AST for parser"""
         pass
 
 # 3 primitive structures
@@ -89,7 +90,10 @@ class Stmt_List(Node):
         pass
 
     def eval(self, eval_context):
-        pass
+
+        # evaluate all statements in the statement list
+        for stmt in self.stmts:
+            stmt.eval(eval_context)
 
     def __str__(self):
         sb = String_Builder()
@@ -121,6 +125,15 @@ class Val(Expr):
         sb.append(str(self.value_type))
         sb.append(" )")
         return str(sb)
+    
+    def to_str(self):
+        return str(self.value)
+
+    def eval(self, eval_context):
+        return self
+
+    def typecheck(self, type_context):
+        return self.value_type
 # /top-level classes
 
 
@@ -162,16 +175,30 @@ class Assign_Stmt(Stmt):
 
 
 class Print_Stmt(Stmt):
+    """stores either print or println expression"""
 
     def __init__(self, expr, token_type):
         self.expr = expr
         self.token_type = token_type
 
     def typecheck(self, type_context):
-        pass
+        self.expr.typecheck(type_context)
 
     def eval(self, eval_context):
-        pass
+        # evaluate the embedded expression in the print statement (if it is not None)
+        if self.expr != None:
+            expr_val = self.expr.eval(eval_context)
+
+            if self.token_type == "PRINT":
+                stdout.write(expr_val.to_str())
+
+            elif self.token_type == "PRINTLN":
+                stdout.write(expr_val.to_str())
+                stdout.write("\n")
+
+        else:
+            if self.token_type == "PRINTLN":
+                stdout.write("\n")
 
     def __str__(self):
         sb = String_Builder()
@@ -185,9 +212,37 @@ class Print_Stmt(Stmt):
 
 # /stmt implementation
 
-
+class Binary_Expr(Expr):
+    """super class for binary expressions"""
+    def __init__(self, op, lhs, rhs):
+        self.op = op
+        self.lhs = lhs
+        self.rhs = rhs
+        
 
 # expr implementation
+class Binary_Comp_Expr(Binary_Expr):
+    """stores binary comparison operation expression AST, except Binary STL expressions"""
+    def typecheck(self, type_context):
+        pass
+
+    def eval(self, eval_context):
+        pass
+
+    def __str__(self):
+        pass
+
+class Binary_Logic_Expr(Binary_Expr):
+    """stores binary logic operation expressions AST"""
+
+    def typecheck(self, type_context):
+        pass
+
+    def eval(self, eval_context):
+        pass
+
+    def __str__(self):
+        pass
 
 class STL_Expr(Expr):
 
@@ -200,46 +255,107 @@ class STL_Expr(Expr):
     def __str__(self):
         pass
 
+class Unary_STL_Expr(STL_Expr):
+    def __init__(self, op, begin_expr, end_expr, condition_expr):
+        self.op = op
+        self.begin_expr = begin_expr
+        self.end_expr = end_expr
+        self.condition_expr = condition_expr
+
+    def typecheck(self, type_context):
+        pass
+
+    def eval(self, eval_context):
+        pass
+
+    def __str__(self):
+        sb = String_Builder()
+        sb.append("Unary_STL_Expr: ( ")
+        sb.append(self.op)
+        sb.append(" [")
+        sb.append(str(self.begin_expr))
+        sb.append(", ")
+        sb.append(str(self.end_expr))
+        sb.append("] (")
+        sb.append(str(self.condition_expr))
+        sb.append(") )")
+
+        return str(sb)
+
+
 # /expr implementation
 
+class Binary_STL_Expr(STL_Expr):
+    def __init__(self, op, begin_expr, end_expr, begin_condition_expr, end_condition_expr):
+        self.op = op
+        self.begin_expr = begin_expr
+        self.end_expr = end_expr
+        self.begin_condition_expr = begin_condition_expr
+        self.end_condition_expr = end_condition_expr
 
+    def typecheck(self, type_context):
+        pass
+
+    def eval(self, eval_context):
+        pass
+
+    def __str__(self):
+        sb = String_Builder()
+        sb.append("Binary_STL_Expr: ( ")
+        sb.append("(")
+        sb.append(str(self.begin_condition_expr))
+        sb.append(") ")
+        sb.append(self.op)
+        sb.append(" [")
+        sb.append(str(self.begin_expr))
+        sb.append(", ")
+        sb.append(str(self.end_expr))
+        sb.append("] (")
+        sb.append(str(self.end_condition_expr))
+        sb.append(") )")
+
+        return str(sb)
 
 # val implementation
 
 class Int_Val(Val):
+    pass
+    # def typecheck(self, type_context):
+        # pass
 
-    def typecheck(self, type_context):
-        pass
-
-    def eval(self, eval_context):
-        pass
+    # def eval(self, eval_context):
+    #     pass
 
 
 class Float_Val(Val):
+    pass
+    # def typecheck(self, type_context):
+    #     pass
 
-    def typecheck(self, type_context):
-        pass
-
-    def eval(self, eval_context):
-        pass
+    # def eval(self, eval_context):
+    #     pass
 
 
 class String_Val(Val):
+    def to_str(self):
+        """override to_str method in Val class
+        get rid of the double quotes for the string
+        """
+        return self.value[1:-1]
+    # def typecheck(self, type_context):
+    #     pass
 
-    def typecheck(self, type_context):
-        pass
-
-    def eval(self, eval_context):
-        pass
+    # def eval(self, eval_context):
+    #     pass
 
 
 class Boolean_Val(Val):
+    pass
+    # def typecheck(self, type_context):
+    #     pass
 
-    def typecheck(self, type_context):
-        pass
-
-    def eval(self, eval_context):
-        pass
+    # def eval(self, eval_context):
+    #     pass
 
     # def __str__(self):
         # """override parent class Val's method due to discrepancy"""

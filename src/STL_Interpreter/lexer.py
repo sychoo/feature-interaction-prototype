@@ -36,7 +36,8 @@ class Lexer:
         lg = LexerGenerator()
 
         # ignore all single-line comments and all white spaces afterwards
-        lg.ignore(r"\/\/(.|\n)*") 
+        lg.ignore(r"\/\/.*\n") 
+        # lg.ignore(r"\/\/(.|\n)*") 
 
         # ignore all multi-line comments and white spaces afterwards
         # references
@@ -115,7 +116,7 @@ class Lexer:
         # lg.add("UNTIL", r"\$U")
         # lg.add("RELEASE", r"\$R")
 
-        # identifiers (variable identifiers/type identifiers)
+        # identifiers (variable identifiers/type identifiers/STL operator identifier)
         lg.add("IDENTIFIER", r"[a-zA-Z_][a-zA-Z0-9_]*")
 
         # build the lexer
@@ -142,8 +143,11 @@ def main():
             # create lexer
             lexer = Lexer()
 
+            # get the raw program string
+            raw_program_string = Tools.get_raw_program_string(argv[1])
+            
             # lexical analyze the program given, break it down to token stream
-            token_stream = lexer.lex(Tools.get_raw_program_string(argv[1]))
+            token_stream = lexer.lex(raw_program_string)
 
             # print all tokens identified
             for token in token_stream:

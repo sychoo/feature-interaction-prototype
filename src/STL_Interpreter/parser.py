@@ -5,7 +5,7 @@
 # Program to define the parser
 
 from rply import ParserGenerator
-import ast
+import AST
 
 from lexer import Lexer
 from sys import argv
@@ -91,25 +91,19 @@ class Parser:
             "VAL_DECL",
             "VAR_DECL",
 
-            # LTL/STL unary operators
-            "GLOBALLY",
-            "EVENTUALLY",
-            "NEXT",
+            # # LTL/STL unary operators
+            # "GLOBALLY",
+            # "EVENTUALLY",
+            # "NEXT",
 
-            # LTL/STL binary operators
-            "UNTIL",
-            "RELEASE",
+            # # LTL/STL binary operators
+            # "UNTIL",
+            # "RELEASE",
 
             # identifiers (variable identifiers/type identifiers)
             "IDENTIFIER",
             ],
 
-            # ["PLUS", "MINUS", "MULTIPLY", "DIVIDE", "SEMICOLON",
-            #  "PRINT", "PRINTLN", "STRING", "EQUAL", "IDENTIFIER", "BOOLEAN",
-            #  "LBRACE", "RBRACE", "LPAREN", "RPAREN", "IF", "ELSE", "BOOLEAN_AND",
-            #  "BOOLEAN_OR", "EQUAL_EQUAL", "NOT_EQUAL", "GREATER", "LESS", "GREATER_EQUAL",
-            #  "LESS_EQUAL", "WHILE", "FOR"
-            #  ],
 
             # A list of precedence rules with ascending precedence, to
             # disambiguate ambiguous production rules.
@@ -136,32 +130,66 @@ class Parser:
             """parse multi-line statements"""
 
             # append the statement to the statements list
-            return ast.Stmt_List(s[0].get_stmt_list() + [s[1]])
+            return AST.Stmt_List(s[0].get_stmt_list() + [s[1]])
 
 
         @pg.production("stmt_list : stmt")
         def single_line_stmt(s):
             """parse single-line statements"""
-            return ast.Stmt_List([s[0]])
+            return AST.Stmt_List([s[0]])
 
 
         @pg.production("stmt : L_BRACE stmt_list R_BRACE")
         def stmt_list_block(s):
             """parse block of statement list"""
-            return ast.Stmt_List(s[1])
+            return AST.Stmt_List(s[1])
 
         # combine two similar statements
         @pg.production("stmt : PRINT expr separator")
         @pg.production("stmt : PRINTLN expr separator")
         def print_stmt(s):
             """parse print/println statements"""
-            return ast.Print_Stmt(s[1], s[0].gettokentype())
+            return AST.Print_Stmt(s[1], s[0].gettokentype())
 
+        @pg.production("stmt : PRINTLN separator")
+        def single_println_stmt(s):
+            return AST.Print_Stmt(None, s[0].gettokentype())
 
         @pg.production("stmt : expr separator")
         def single_expr_stmt(s):
             return s[0]
 
+        @pg.production("expr : L_PAREN expr R_PAREN")
+        def parent_expr(s):
+            return s[1]
+
+        @pg.production("expr : expr GREATER expr")
+        @pg.production("expr : expr GREATER_EQUAL expr")
+        @pg.production("expr : expr LESS expr")
+        @pg.production("expr : expr LESS_EQUAL expr")
+        @pg.production("expr : expr EQUAL_EQUAL expr")
+        @pg.production("expr : expr NOT_EQUAL expr")
+        def binary_comp_expr(s):
+            """handles binary comparison expressions"""
+            return AST.Binary_Comp_Expr(s[1], s[0], s[2])
+
+        @pg.production("expr : expr LOGICAL_AND expr")
+        @pg.production("expr : expr LOGICAL_OR expr")
+        @pg.production("expr : expr LOGICAL_IMPLIES expr")
+        def binary_logic_expr(s):
+            """handles binary logic expressions"""
+            return AST.Binary_Logic_Expr(s[1].gettoketype(), s[0], s[2])
+
+        # G[1, 10]()
+        @pg.production("expr : IDENTIFIER L_SQ_BRACE expr COMMA expr R_SQ_BRACE L_PAREN expr R_PAREN")        
+        def unary_STL_expr(s):
+            """handles unary STL expressions"""
+            return AST.Unary_STL_Expr(s[0].getstr(), s[2], s[4], s[7])
+
+        @pg.production("expr : L_PAREN expr R_PAREN IDENTIFIER L_SQ_BRACE expr COMMA expr R_SQ_BRACE L_PAREN expr R_PAREN")
+        def binary_STL_expr(s):
+            """handler binary STL expressions"""
+            return AST.Binary_STL_Expr(s[3].getstr(), s[5], s[7], s[1], s[10])
 
         @pg.production("expr : val")
         def single_val_expr(s):
@@ -172,24 +200,26 @@ class Parser:
         @pg.production("val : INT")
         def int_val(s):
             """parse Int values"""
-            return ast.Int_Val(s[0].getstr(), s[0].gettokentype())
+            return AST.Int_Val(s[0].getstr(), s[0].gettokentype())
 
 
         @pg.production("val : FLOAT")
         def float_val(s):
             """parse Float values"""
-            return ast.Float_Val(s[0].getstr(), s[0].gettokentype())
+            return AST.Float_Val(s[0].getstr(), s[0].gettokentype())
 
 
         @pg.production("val : STRING")
         def string_val(s):
             """parse Float values"""
-            return ast.String_Val(s[0].getstr(), s[0].gettokentype())
+            return AST.String_Val(s[0].getstr(), s[0].gettokentype())
+
 
         @pg.production("val : BOOLEAN")
         def boolean_val(s):
             """parse Float values"""
-            return ast.Boolean_Val(s[0].getstr(), s[0].gettokentype())
+            return AST.Boolean_Val(s[0].getstr(), s[0].gettokentype())
+
 
         @pg.production("separator : SEMICOLON")
         @pg.production("separator : NEWLINE")
@@ -226,16 +256,26 @@ def main():
             # create lexer
             lexer = Lexer()
 
-            # lexical analyze the program given, break it down to token stream
-            token_stream = lexer.lex(Tools.get_raw_program_string(argv[1]))
+            # get the raw program string
+            raw_program_string = Tools.get_raw_program_string(argv[1])
 
+            # lexical analyze the program given, break it down to token stream
+            token_stream = lexer.lex(raw_program_string)
+
+            # replica of token stream for checking the length
+            # since token stream can only be looped once, we have to replicate it
+            token_stream_replica = lexer.lex(raw_program_string)
+
+            # find the length of the token stream
+            Tools.check_token_length(token_stream_replica)
+            
             # create parser
             parser = Parser()
 
             # parse the lexical token stream to AST (abstract syntax tree)
-            parsed_ast = parser.parse(token_stream)
+            parsed_AST = parser.parse(token_stream)
 
-            print(parsed_ast)
+            print(parsed_AST)
 
         else:
             Tools.print_error("file \"" + argv[1] + "\" does not exists in the file system.\n")   

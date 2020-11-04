@@ -1,31 +1,104 @@
-# https://docs.python.org/2/library/unittest.html
+# *** Note that name of the test function must start with "test"
 
+# https://docs.python.org/2/library/unittest.html
 import unittest
 import tools
 import main
+import sys
+
+import subprocess
+
+# https://www.devdungeon.com/content/python-use-stringio-capture-stdout-and-stderr
+# from io import StringIO
+
+# for capturing standard output
+# from IPython.utils.capture import capture_output
+
+TEST_DIR = "test_suite/"
+
+def test_file_path(test_file):
+    """function obtain the file path"""
+    return TEST_DIR + test_file
 
 class Test_Tools(unittest.TestCase):
 
     def test_string_builder(self):
         sb = tools.String_Builder()
-        sb.append("hello")
-        self.assertEqual(str(sb), "hello")
+        sb.append("Hello")
+        sb.append(", ")
+        sb.append("World")
+        sb.append("!")
+        self.assertEqual(str(sb), "Hello, World!")
+
+
+    def test_extract_raw_program_string(self):
+        # test when there is NOT a \n at the end
+        string = "Hello, \n \n     \n\nWorld!"
+        extracted_raw_program_string = tools.Tools.extract_raw_program_string(string)
+        expected_string = "Hello, \nWorld!\n"
+        self.assertEqual(extracted_raw_program_string, expected_string)
     
-    # # initialization of Map_Cell without attributes
-    # def test_map_cell_init_without_attributes(self):
-    #     map_cell = Map_Cell(Coord(5, 20))
+        # test when there is a \n at the end
+        string = "Hello, \n \n     \n\nWorld!\n"
+        extracted_raw_program_string = tools.Tools.extract_raw_program_string(string)
+        expected_string = "Hello, \nWorld!\n"
+        self.assertEqual(extracted_raw_program_string, expected_string)
 
-    #     self.assertEqual(str(map_cell), "(5, 20) : 0")
 
-    # def test_set_attribute(self):
-    #     map_cell = Map_Cell(Coord(5, 20))
-    #     map_cell.set_attribute("visited", True)
+    def test_get_raw_program_string(self):
+        # test when there is NOT a \n at the end
+        test_file = test_file_path("hello.txt")
+        raw_program_string = tools.Tools.get_raw_program_string(test_file)
+        expected_string = "Hello, \nWorld!\n"
+        self.assertEqual(raw_program_string, expected_string)
 
-    #     self.assertEqual(str(map_cell), "(5, 20) : 0")
-    #     self.assertEqual(map_cell.get_attribute("visited"), True)
+        # test when there is a \n at the end
+        test_file = test_file_path("hello2.txt")
+        raw_program_string = tools.Tools.get_raw_program_string(test_file)
+        expected_string = "Hello, \nWorld!\n"
+        self.assertEqual(raw_program_string, expected_string)
+
 
 class Program_Tests(unittest.TestCase):
-    def test_print_stmt(self):
+    """class to faciliate the testing of programs
+    4 approaches to test programs
+    - simply run the program, make sure the program does not raise any exceptions
+    - specify the program in the unit test, run the program
+    - specify the program in test_suite/ directory, specify the file name the run the program (embedd the program in the unit test)
+    """
+    test_dir = "test_suite/"
+    
+    def test_run_program(self):
+        """run program without giving expected input. check if error occurs during execution"""
+        test_file = test_file_path("print.stl")
+        main.Interpreter(test_file)
+        sys.stdout.flush()
+
+    def test_print_stmt_with_file(self):
+        """run program file by shell command, highly depends on interp command"""
+        test_file = test_file_path("print.stl")
+        actual_output = subprocess.check_output("python3 main.py " + test_file, shell=True)
+        expected_output = """1
+1.0
+true
+hello, world!
+false
+1
+1.0
+true
+false
+hello, world!
+11.0truefalsehello, world!11.0truefalse"""
+
+        # decode the output to string (byte -> string)
+        decoded_actual_output = actual_output.decode()
+
+        self.assertEqual(decoded_actual_output, expected_output)
+
+    def test_print_stmt_with_program_string(self):
+        """run program by specifying the program within the unit test"""
+        # execute python script on command line https://stackoverflow.com/questions/5136611/capture-stdout-from-a-script
+
         program = """
 
         // 2020-11-03 20:24:09
@@ -60,7 +133,45 @@ class Program_Tests(unittest.TestCase):
 
         """
 
-        main.Interpreter.interpret(program)
-        
+        # extract raw program string
+        raw_program_string = tools.Tools.extract_raw_program_string(program)
+
+        # actual_output = subprocess.check_output('python3 -c  import main; main.Interpreter.interpret("""' + raw_program_string + '""");', shell=True)
+        #works
+        # actual_output = subprocess.check_output('python3 -c \'import main; main.Interpreter.interpret("""print "hello, world";""")\'', shell=True)
+
+        actual_output = subprocess.check_output('python3 -c \'import main; main.Interpreter.interpret("""'+ raw_program_string + '""")\'', shell=True)
+        # python3 -c 'import main; main.Interpreter.interpret("""print "hello, world";""")'  
+        expected_output = """1
+1.0
+true
+hello, world!
+false
+1
+1.0
+true
+false
+hello, world!
+11.0truefalsehello, world!11.0truefalse"""
+
+        # decode the output to string (byte -> string)
+        decoded_actual_output = actual_output.decode()
+
+        self.assertEqual(decoded_actual_output, expected_output)
+
+
+    def test_empty_files_exit_0(self):
+        """ensure interpreter doesn't raise errors code != 0 when given an empty file or file with white spaces"""
+        file_list = ["empty.stl", "empty_2.stl", "empty_3.stl", "empty_4.stl"]
+
+        for file in file_list:
+            try:
+                main.Interpreter(test_file_path(file))
+            except SystemExit as e:
+                # make sure empty program exit with code 0
+                self.assertEqual(e.code, 0)
+
+
+
 if __name__ == '__main__':
     unittest.main()
