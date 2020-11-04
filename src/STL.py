@@ -30,6 +30,7 @@ class Global(STL_Expr):
     def eval(self, signal, external_data=dict()):
         # pass
         # assume G include both bound
+        final_result = True
         for time in range(self.begin, self.end + 1):
             # evaluate all signal data between the time interval
 
@@ -38,10 +39,11 @@ class Global(STL_Expr):
             result = self.stl_expr.eval(signal.get_signal_data_by_time(time), external_data)
 
             # debug
-            # print(result)
+            print("             intermediate result ::    time = " + str(time) + " result = " + str(result))
             if result == False:
-                return False
-        return True
+                # return False
+                final_result = False
+        return final_result
             
 
 class Helper():

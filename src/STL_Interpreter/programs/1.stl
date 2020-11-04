@@ -1,0 +1,8 @@
+/*
+ * Mon Nov  2 14:03:10 EST 2020
+ * declaration and assignment statement
+ * Designed by Simon Chu
+ */
+
+val i = 1;
+var pi = 3.14;

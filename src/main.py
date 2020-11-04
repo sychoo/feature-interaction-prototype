@@ -31,40 +31,54 @@ if __name__ == "__main__":
     # requirement: only path of the ego drone is visible, and has robustness value
     # half static, half dynamic
 
-    ###### execute flight mission #####
+    is_execute_flight_mission = False
 
-    # init feature object
-    mission_obj = Mission_Planner()
+    if is_execute_flight_mission == True:
+        ###### execute flight mission #####
 
-    # create a 21 x 21 map (odd number, with center)
-    mission_obj.create_internal_map(21, 21)
+        # init feature object
+        mission_obj = Mission_Planner()
 
-    # link the map object to the drones
-    ego_drone = EgoDrone(mission_obj.get_internal_map())
-    enemy_drone = EnemyDrone(mission_obj.get_internal_map())
+        # create a 21 x 21 map (odd number, with center)
+        mission_obj.create_internal_map(21, 21)
 
-    # set the initial positions for teh ego drone and the enemy drone
-    ego_drone.set_init_coord(Coord(0, 20))
-    enemy_drone.set_init_coord(Coord(5, 5))
+        # link the map object to the drones
+        ego_drone = EgoDrone(mission_obj.get_internal_map())
+        enemy_drone = EnemyDrone(mission_obj.get_internal_map())
 
-    # add enemy drone and ego drone
-    mission_obj.add_drone(ego_drone)
-    mission_obj.add_drone(enemy_drone)
+        # set the initial positions for teh ego drone and the enemy drone
 
-    # start the feature object, with step number = 23
-    mission_obj.run(23)
-   
-    # animate the flight path
-    mission_obj.get_flight_path().animate()
+        # default demo
+        ego_drone.set_init_coord(Coord(0, 20))
+        enemy_drone.set_init_coord(Coord(5, 5))
 
-    ###### /execute flight mission #####
+        # ego_drone.set_init_coord(Coord(2, 20))
+        # enemy_drone.set_init_coord(Coord(1, 6))
+
+        # add enemy drone and ego drone
+        mission_obj.add_drone(ego_drone)
+        mission_obj.add_drone(enemy_drone)
+
+        # start the feature object, with step number = 23
+        mission_obj.run(23)
+    
+        # animate the flight path
+        mission_obj.get_flight_path().animate()
+
+        ###### /execute flight mission #####
 
 
     ##### to do: estimate the signal in the execution loop, to deviate from the original flight mission
     ##### flight estimation testing #####
     # estimate flight path with the fixed mission (given start position, drones, and lookahead time)
     # current_signal = {"time": 0, "Ego": {"current_coords": (0, 20)}, "Enemy": {"current_coords": (0, 5)}}#Signal_Element()
-    current_signal_element = Signal_Element(0, {"Ego": {"current_coord": Coord(0, 20), "init_coord": Coord(0, 20)}, "Enemy": {"current_coord": Coord(0, 5), "init_coord": Coord(0, 5)}})
+
+    # default demo
+    current_signal_element = Signal_Element(0, {"Ego": {"current_coord": Coord(1, 20), "init_coord": Coord(1, 20)}, "Enemy": {"current_coord": Coord(0, 5), "init_coord": Coord(0, 5)}})
+
+    # modified demo
+    # current_signal_element = Signal_Element(0, {"Ego": {"current_coord": Coord(2, 20), "init_coord": Coord(1, 20)}, "Enemy": {"current_coord": Coord(1, 6), "init_coord": Coord(0, 5)}})
+
     signal_estimator = Signal_Estimator(current_signal_element)
 
     # create identical maps for drones
@@ -86,8 +100,14 @@ if __name__ == "__main__":
     ego_init_coord = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coord")
     enemy_init_coord = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coord")
 
+    ego_current_coord = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "current_coord")
+    enemy_current_coord = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "current_coord")
+
     est_ego_drone.set_init_coord(ego_init_coord)
     est_enemy_drone.set_init_coord(enemy_init_coord)
+
+    est_ego_drone.set_current_coord(ego_current_coord)
+    est_enemy_drone.set_current_coord(enemy_current_coord)
 
     signal_estimator.add_drone(est_ego_drone)
     signal_estimator.add_drone(est_enemy_drone)
@@ -99,6 +119,7 @@ if __name__ == "__main__":
     estimated_signal = signal_estimator.get_signal_estimation()
 
     # debugger, testing signal estimator
+    print ("Estimated Signal: ")
     print(estimated_signal)
 
 
@@ -106,16 +127,17 @@ if __name__ == "__main__":
     # ideal function invocation
     # G[0, 10](distanceToBoundary > 3)
 
-    stl_formula_1 = STL.Global(1, 10, STL.Primitives.Greater_Than(STL.Helper.Distance_To_Boundary(), 3)) # distance_to_boundary > 3.0
-    # 1, 10 - False - There are violations of the STL formula in between 1 and 10
-    # 6, 10 - True - There are not violations of the STL formula in between 6 and 10
-    stl_formula_2 = STL.Global(1, 5, STL.Primitives.Greater_Than(STL.Helper.Distance_To_Enemy_Drone(), 3)) # distance_to_enemy > 3.0
-    # 1, 5 - True - There are no violation of the STL formula between 1 and 5
-    # 6, 10 - False - There are violations of the STL formula in between 6 and 10
+    stl_formula_1 = STL.Global(0, 23, STL.Primitives.Greater_Than(STL.Helper.Distance_To_Boundary(), 3)) # distance_to_boundary > 3.0
+    # 0 - 6 false, 7 - 19 true, 20 - 23 false
+    stl_formula_2 = STL.Global(0, 23, STL.Primitives.Greater_Than(STL.Helper.Distance_To_Enemy_Drone(), 3)) # distance_to_enemy > 3.0
+    # 0 - 8 true, 9 - 23 false
 
     # evalute the STL formula with respect to the estimated signal
-
+    print("distance to boundary > 3")
     print(stl_formula_1.eval(estimated_signal, {"internal_map": est_internal_map}))
+
+    print()
+    print("distance to enemy drone > 3")
     print(stl_formula_2.eval(estimated_signal))
     
 

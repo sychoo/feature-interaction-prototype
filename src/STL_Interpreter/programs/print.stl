@@ -1,0 +1,29 @@
+println 1;
+
+println 1.0;
+
+println true;
+println "hello, world!";
+println false;
+
+
+
+
+
+println 1
+println 1.0
+println true
+println false
+println "hello, world!"
+
+print 1;
+print 1.0;
+print true;
+print false;
+print "hello, world!";
+
+print 1
+print 1.0
+print true
+print false
+print "hello, world!"

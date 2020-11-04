@@ -104,67 +104,74 @@ class Mission_Planner:
 
 
 
+            is_signal_estimation = False
+
+            if is_signal_estimation == True:
+                ##### signal estimation #####
+                # time span for the signal estimator
+                LOOKAHEAD_TIME_SPAN = 5
+
+                # note that this will solely be used for one ego drone one enemy drone situation
+
+                # obtain the current signal data (include every drone)
+                signal_data = dict()
+
+                for drone in self.drones:
+                    signal_data[drone.get_id()] = {"current_coord": drone.get_current_coord(), "init_coord": drone.get_init_coord()}
 
 
-            # ##### signal estimation #####
-            # # time span for the signal estimator
-            # LOOKAHEAD_TIME_SPAN = 5
+                # encapsulated signal data into Signal_Element
+                current_signal_element = Signal_Element(steps, signal_data)
 
-            # # note that this will solely be used for one ego drone one enemy drone situation
+                # initialize signal estimator
+                signal_estimator = Signal_Estimator(current_signal_element)
 
-            # # obtain the current signal data (include every drone)
-            # signal_data = dict()
+                # create identical maps for drones
+                est_internal_map = Map(map_width, map_height)
 
-            # for drone in self.drones:
-            #     signal_data[drone.get_id()] = {"current_coord": drone.get_current_coord(), "init_coord": drone.get_init_coord()}
+                est_ego_drone = EgoDrone(est_internal_map)
+                est_enemy_drone = EnemyDrone(est_internal_map)
 
+                # set the initial positions for teh ego drone and the enemy drone
+                # find the initial location for the drones
+                # ! no work around due to how flight mission/path is encoded
+                # to-do: change how flight mission is encoded
 
-            # # encapsulated signal data into Signal_Element
-            # current_signal_element = Signal_Element(steps, signal_data)
+                # ego_init_x = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["x_cor"]
+                # ego_init_y = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["y_cor"]
+                # enemy_init_x = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["x_cor"]
+                # enemy_init_y = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["y_cor"]
 
-            # # initialize signal estimator
-            # signal_estimator = Signal_Estimator(current_signal_element)
+                ego_init_coord = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coord")
+                enemy_init_coord = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coord")
 
-            # # create identical maps for drones
-            # est_internal_map = Map(map_width, map_height)
+                ego_current_coord = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "current_coord")
+                enemy_current_coord = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "current_coord")
 
-            # est_ego_drone = EgoDrone(est_internal_map)
-            # est_enemy_drone = EnemyDrone(est_internal_map)
+                est_ego_drone.set_init_coord(ego_init_coord)
+                est_enemy_drone.set_init_coord(enemy_init_coord)
 
-            # # set the initial positions for teh ego drone and the enemy drone
-            # # find the initial location for the drones
-            # # ! no work around due to how flight mission/path is encoded
-            # # to-do: change how flight mission is encoded
+                est_ego_drone.set_current_coord(ego_current_coord)
+                est_enemy_drone.set_current_coord(enemy_current_coord)
 
-            # # ego_init_x = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["x_cor"]
-            # # ego_init_y = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coords")["y_cor"]
-            # # enemy_init_x = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["x_cor"]
-            # # enemy_init_y = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coords")["y_cor"]
+                signal_estimator.add_drone(est_ego_drone)
+                signal_estimator.add_drone(est_enemy_drone)
 
-            # ego_init_coord = current_signal_element.get_signal_data_by_id_key(est_ego_drone.identifier, "init_coord")
-            # enemy_init_coord = current_signal_element.get_signal_data_by_id_key(est_enemy_drone.identifier, "init_coord")
+                # estimate the entirety of the mission, given the lookahead time
+                signal_estimator.fixed_mission_estimate(LOOKAHEAD_TIME_SPAN)
 
-            # est_ego_drone.set_init_coord(ego_init_coord)
-            # est_enemy_drone.set_init_coord(enemy_init_coord)
+                # maybe change the time_span
+                estimated_signal = signal_estimator.get_signal_estimation()
 
-            # signal_estimator.add_drone(est_ego_drone)
-            # signal_estimator.add_drone(est_enemy_drone)
+                print("step = " + str(steps) + " " + str(estimated_signal))
+                # signal_data
 
-            # # estimate the entirety of the mission, given the lookahead time
-            # signal_estimator.fixed_mission_estimate(23)
-
-            # # maybe change the time_span
-            # estimated_signal = signal_estimator.get_signal_estimation()
-
-            # print(estimated_signal)
-            # # signal_data
-
-            # # have obtained all necessary data from the drones (such as current coordinates)
-            # # current_signal_element = Signal_Element(0, {"Ego": {"current_coord": Coord(0, 20), "init_coord": Coord(0, 20)}, "Enemy": {"current_coord": Coord(0, 5), "init_coord": Coord(0, 5)}})
-            # # signal_estimator = Signal_Estimator(current_signal_element)
+                # have obtained all necessary data from the drones (such as current coordinates)
+                # current_signal_element = Signal_Element(0, {"Ego": {"current_coord": Coord(0, 20), "init_coord": Coord(0, 20)}, "Enemy": {"current_coord": Coord(0, 5), "init_coord": Coord(0, 5)}})
+                # signal_estimator = Signal_Estimator(current_signal_element)
 
 
-            ##### /signal estimation #####
+                ##### /signal estimation #####
 
 
 

@@ -31,7 +31,14 @@ sphinx-apidoc -f -o docs/source .
 
 ### Step 3: generate the HTML file 
 ```bash
+# please execute command below in the project root directory
 make html
+```
+
+### Step 4: open the HTML file 
+```bash
+# please execute command below in the project root directory
+open docs/build/html/index.html
 ```
 
 ## Python Style Guide
@@ -54,4 +61,19 @@ class SampleClass:
 
     def public_method(self):
         """Performs operation blah."""
+
+def func(arg1, arg2):
+    """Summary line.
+
+    Extended description of function.
+
+    Args:
+        arg1 (int): Description of arg1
+        arg2 (str): Description of arg2
+
+    Returns:
+        bool: Description of return value
+
+    """
+    return True
 ```

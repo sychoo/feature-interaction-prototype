@@ -11,6 +11,8 @@ from matplotlib.animation import FuncAnimation
 from map_utils import Coord
 import numpy as np
 
+ANIMATION_INTERVAL = 400 # default is 400
+
 class Path:
     """
     Attributes:
@@ -166,7 +168,7 @@ class Path:
 
 
         # start the animation
-        animation = FuncAnimation(plt.gcf(), animate_helper, interval = 400)
+        animation = FuncAnimation(plt.gcf(), animate_helper, interval = ANIMATION_INTERVAL)
 
         plt.legend()
         plt.tight_layout()

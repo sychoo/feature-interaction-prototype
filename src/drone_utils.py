@@ -261,6 +261,7 @@ class Drone(metaclass=abc.ABCMeta):
         # set the initial position coordinates for the drone
         self.init_coord = coord
         self.current_coord = coord
+
         # self.init_x_cor = init_x_cor
         # self.init_y_cor = init_y_cor
 

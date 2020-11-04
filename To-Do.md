@@ -97,4 +97,37 @@ sphinx-apidoc -f -o docs/source .
 
 # Maybe Future Work
 
-- STL Compiler - Based on [Metrics for Signal Temporal Logic Formulae](https://arxiv.org/abs/1808.03315)
+- STL Parser/Compiler - Based on [Metrics for Signal Temporal Logic Formulae](https://arxiv.org/abs/1808.03315)
+- Visualizer Input Box (Entering Signal like the ones below), immediately parse and visualize the path on the 2D plot
+
+
+{
+        (0, ({'Ego': {'current_coord': (0, 20)}, 'Enemy': {'current_coord': (0, 5)}})
+        (1, ({'Ego': {'current_coord': (1, 20)}, 'Enemy': {'current_coord': (0, 5)}})
+        (2, ({'Ego': {'current_coord': (2, 20)}, 'Enemy': {'current_coord': (1, 6)}})
+        (3, ({'Ego': {'current_coord': (3, 19)}, 'Enemy': {'current_coord': (2, 7)}})
+        (4, ({'Ego': {'current_coord': (4, 18)}, 'Enemy': {'current_coord': (3, 8)}})
+        (5, ({'Ego': {'current_coord': (5, 18)}, 'Enemy': {'current_coord': (4, 9)}})
+        (6, ({'Ego': {'current_coord': (6, 17)}, 'Enemy': {'current_coord': (5, 10)}})
+        (7, ({'Ego': {'current_coord': (6, 16)}, 'Enemy': {'current_coord': (6, 11)}})
+        (8, ({'Ego': {'current_coord': (7, 15)}, 'Enemy': {'current_coord': (6, 12)}})
+        (9, ({'Ego': {'current_coord': (8, 14)}, 'Enemy': {'current_coord': (7, 13)}})
+        (10, ({'Ego': {'current_coord': (9, 13)}, 'Enemy': {'current_coord': (8, 14)}})
+        (11, ({'Ego': {'current_coord': (9, 12)}, 'Enemy': {'current_coord': (9, 13)}})
+        (12, ({'Ego': {'current_coord': (10, 11)}, 'Enemy': {'current_coord': (9, 12)}})
+        (13, ({'Ego': {'current_coord': (10, 10)}, 'Enemy': {'current_coord': (10, 11)}})
+        (14, ({'Ego': {'current_coord': (11, 9)}, 'Enemy': {'current_coord': (10, 10)}})
+        (15, ({'Ego': {'current_coord': (11, 8)}, 'Enemy': {'current_coord': (11, 9)}})
+        (16, ({'Ego': {'current_coord': (12, 7)}, 'Enemy': {'current_coord': (11, 8)}})
+        (17, ({'Ego': {'current_coord': (12, 6)}, 'Enemy': {'current_coord': (12, 7)}})
+        (18, ({'Ego': {'current_coord': (13, 5)}, 'Enemy': {'current_coord': (12, 6)}})
+        (19, ({'Ego': {'current_coord': (13, 4)}, 'Enemy': {'current_coord': (13, 5)}})
+        (20, ({'Ego': {'current_coord': (13, 3)}, 'Enemy': {'current_coord': (13, 4)}})
+        (21, ({'Ego': {'current_coord': (14, 2)}, 'Enemy': {'current_coord': (13, 3)}})
+        (22, ({'Ego': {'current_coord': (14, 1)}, 'Enemy': {'current_coord': (14, 2)}})
+        (23, ({'Ego': {'current_coord': (14, 0)}, 'Enemy': {'current_coord': (14, 1)}})
+}
+
+
+Assumption/solution:
+Problem during exectuion signal estimation is that you can't visit the same sqaure twice
