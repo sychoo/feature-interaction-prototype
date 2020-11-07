@@ -32,4 +32,4 @@ maybe bad idea, do some preprocessing, and make sure :::NO
 instead to prevent test_error/bin_op.stl
         - caused by no separator
 
-- the format of float type must be under scrutiny and its interopeability with Python data type
+- add unary arithmetic operators

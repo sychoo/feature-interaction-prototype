@@ -133,7 +133,13 @@ class Lexer:
         lg.add("NEWLINE", r"\n")
         
         # numerical values
-        lg.add("FLOAT", r"[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?") # XX.XX
+        # current use . as a identifier for floating-point numbers
+        # in the future, maybe find ways to include 158E2 as floating points
+        # lg.add("FLOAT", r"[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?") # XX.XX
+        # lg.add("FLOAT", r"[0-9]*((\.[0-9]+)|(\.?[0-9]+([eE][-+]?[0-9]+)))")
+
+        # support 1.2, 1E7, 1.E7, 1.02E2 (equivalent to 102.0) as floating-point numbers
+        lg.add("FLOAT", r"[0-9]*(\.[0-9]+([eE][-+]?[0-9]+)?)|([0-9]+([eE][-+]?[0-9]+))")
         lg.add("INT", r"\d+")
         lg.add("STRING", r"\".*\"")
         lg.add("BOOLEAN", r"true|false")
