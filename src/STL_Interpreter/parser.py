@@ -42,6 +42,7 @@ class Parser:
             "LOGICAL_AND", 
             "LOGICAL_OR",
             "LOGICAL_IMPLIES",
+            "LOGICAL_NOT",
 
             # binary operators for numerical (Int, Float) operations
             "GREATER_EQUAL",
@@ -82,6 +83,7 @@ class Parser:
             "COMMA",
             "SEMICOLON",
             "NEWLINE",
+            "COLON",
 
             # numerical values
             "FLOAT",
@@ -148,14 +150,42 @@ class Parser:
             return AST.Stmt_List([s[0]])
 
 
-        # block statements
+        # # block statements
         # @pg.production("stmt : L_BRACE stmt_list r_brace_as_separator")
         # def stmt_list_block(s):
         #     """parse block of statement list"""
         #     return AST.Stmt_List(s[1])
 
 
-        # @pg.production("stmt : VAL_DECL ")
+        # typed val declaration (type inference)
+        @pg.production("stmt : VAL_DECL expr EQUAL expr separator")
+        def untyped_var_decl_stmt(s):
+            return AST.Val_Decl_Stmt(s[0].gettokentype(), s[1], None, s[3])
+
+    
+        # untyped var declaration (type inference)
+        @pg.production("stmt : VAR_DECL expr EQUAL expr separator")
+        def untyped_var_decl_stmt(s):
+            return AST.Var_Decl_Stmt(s[0].gettokentype(), s[1], None, s[3])
+
+        
+
+        # typed val declaration
+        @pg.production("stmt : VAL_DECL expr COLON expr EQUAL expr separator")
+        def typed_val_decl_stmt(s):
+            return AST.Val_Decl_Stmt(s[0].gettokentype(), s[1], s[3], s[5])
+
+
+        # typed var declaration
+        @pg.production("stmt : VAR_DECL expr COLON expr EQUAL expr separator")
+        def typed_val_decl_stmt(s):
+            return AST.Var_Decl_Stmt(s[0].gettokentype(), s[1], s[3], s[5])
+
+        # assignment statement (non-declaration style)
+        @pg.production("stmt : expr EQUAL expr separator")
+        def assign_stmt(s):
+            return AST.Assign_Stmt(s[0], s[2])
+
 
         # combine two similar statements
         @pg.production("stmt : PRINT expr separator")
@@ -172,6 +202,10 @@ class Parser:
         def single_expr_stmt(s):
             return s[0]
 
+        @pg.production("expr : IDENTIFIER")
+        def var_expr(s):
+            return AST.Id_Expr(s[0].getstr())
+
         @pg.production("expr : L_PAREN expr R_PAREN")
         def parent_expr(s):
             """calculate the parenthesized expression first"""
@@ -186,6 +220,10 @@ class Parser:
         def binary_comp_expr(s):
             """handles binary comparison expressions"""
             return AST.Binary_Comp_Expr(s[1].getstr(), s[1].gettokentype(), s[0], s[2])
+
+        @pg.production("expr : LOGICAL_NOT expr")
+        def unary_logic_expr(s):
+            pass
 
         @pg.production("expr : expr LOGICAL_AND expr")
         @pg.production("expr : expr LOGICAL_OR expr")
@@ -266,13 +304,13 @@ class Parser:
             """parse Float values"""
             return AST.Signal_Val(s[0].getstr(), s[0].gettokentype())
 
-        @pg.production("r_brace_as_separator : R_BRACE")
-        @pg.production("r_brace_as_separator : R_BRACE separator")
-        def r_brace_as_separator(s):
-            """helper function for block statement { stmt_list }
-            R_BRACE itself can act as a separator
-            """
-            pass
+        # @pg.production("r_brace_as_separator : R_BRACE")
+        # @pg.production("r_brace_as_separator : R_BRACE separator")
+        # def r_brace_as_separator(s):
+        #     """helper function for block statement { stmt_list }
+        #     R_BRACE itself can act as a separator
+        #     """
+        #     pass
 
         @pg.production("separator : NEWLINE")
         @pg.production("separator : SEMICOLON")

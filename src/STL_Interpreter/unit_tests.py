@@ -5,6 +5,10 @@ import unittest
 import tools
 import main
 import sys
+import AST
+
+sys.path.append("AST")
+import exceptions # AST/exceptions.py
 
 import subprocess
 
@@ -22,6 +26,53 @@ def test_file_path(test_file):
 
 class Test_Tools(unittest.TestCase):
 
+    def test_evaluation_context(self):
+        ctx_1 = AST.Eval_Context.get_empty_context()
+        ctx_1.add(AST.Id_Expr("i"), 10)
+        ctx_1.add(AST.Id_Expr("j"), 20)
+        ctx_1.add(AST.Id_Expr("k"), 30)
+
+        ctx_2 = AST.Eval_Context.get_empty_context()
+        ctx_2.add(AST.Id_Expr("a"), 100)
+        ctx_2.add(AST.Id_Expr("b"), 200)
+        ctx_2.add(AST.Id_Expr("c"), 300)
+
+        self.assertEqual(ctx_1.lookup(AST.Id_Expr("k")), 30)
+        self.assertEqual(ctx_2.lookup(AST.Id_Expr("b")), 200)
+
+        # look up something that doesn't exist in the context scope
+        try:
+            ctx_1.lookup(AST.Id_Expr("ds"))
+        except exceptions.Context_Lookup_Error as e:
+            # flush out the error message so that it doesn't print at the end
+            sys.stdout.flush()
+
+        # look up outer scope of top-level context, result in None
+        self.assertEqual(ctx_2.get_outer_context_var_id(), None)
+
+    def test_type_context(self):
+        ctx_1 = AST.Type_Context.get_empty_context()
+        ctx_1.add(AST.Id_Expr("i"), 10)
+        ctx_1.add(AST.Id_Expr("j"), 20)
+        ctx_1.add(AST.Id_Expr("k"), 30)
+
+        ctx_2 = AST.Type_Context.get_empty_context()
+        ctx_2.add(AST.Id_Expr("a"), 100, {"val": True})
+        ctx_2.add(AST.Id_Expr("b"), 200)
+        ctx_2.add(AST.Id_Expr("c"), 300)
+
+        self.assertEqual(ctx_1.lookup(AST.Id_Expr("k")), 30)
+        self.assertEqual(ctx_2.lookup(AST.Id_Expr("b")), 200)
+
+        # look up something that doesn't exist in the context scope
+        try:
+            ctx_1.lookup(AST.Id_Expr("ds"))
+        except exceptions.Context_Lookup_Error as e:
+            # flush out the error message so that it doesn't print at the end
+            sys.stdout.flush()
+
+        # look up outer scope of top-level context, result in None
+        self.assertEqual(ctx_2.get_outer_context_var_id(), None)
     def test_string_builder(self):
         sb = tools.String_Builder()
         sb.append("Hello")

@@ -130,6 +130,7 @@ class Lexer:
         # separators/delimiters
         lg.add("COMMA", r",")
         lg.add("SEMICOLON", r";")
+        lg.add("COLON", r":")
         lg.add("NEWLINE", r"\n")
         
         # numerical values

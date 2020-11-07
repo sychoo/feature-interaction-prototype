@@ -7,43 +7,79 @@ path.append("..") # Adds higher directory to python modules path.
 
 from tools import String_Builder
 
-from core_AST import Stmt
+from core_AST import Stmt, Id_Expr
+
+class Variable_Decl_Stmt(Stmt):
+    def __init__(self, decl_type, var_id_expr, var_type, rhs_expr):
+        self.decl_type = decl_type
+        self.var_id_expr = var_id_expr
+        self.var_type = var_type
+        self.rhs_expr = rhs_expr
+
+    def __str__(self):
+        sb = String_Builder()
+        sb.append("Variable_Decl_Stmt: ( ")
+        sb.append(str(self.decl_type))
+        sb.append(" ")
+        sb.append(str(self.var_id_expr))
+        sb.append(": ")
+        sb.append(str(self.var_type))
+        sb.append(" = ")
+        sb.append(str(self.rhs_expr))
+        sb.append(" )")
+        return str(sb)
 
 # stmt implementation
-class Val_Decl_Stmt(Stmt):
+class Val_Decl_Stmt(Variable_Decl_Stmt):
+    # do not allow re-assignment for val declaration
 
     def typecheck(self, type_context):
         pass
 
     def eval(self, eval_context):
-        pass
+        # add val_decl attribute
+        self.rhs_expr = self.rhs_expr.eval(eval_context)
+        eval_context.add(self.var_id_expr, self.rhs_expr)
 
-    def __str__(self):
-        pass
 
 
-class Var_Decl_Stmt(Stmt):
+class Var_Decl_Stmt(Variable_Decl_Stmt):
 
     def typecheck(self, type_context):
         pass
 
     def eval(self, eval_context):
-        pass
+        # add var_decl attribute
+        self.rhs_expr = self.rhs_expr.eval(eval_context)
+        eval_context.add(self.var_id_expr, self.rhs_expr)
 
-    def __str__(self):
-        pass
 
 
 class Assign_Stmt(Stmt):
 
+    def __init__(self, var_id_expr, rhs_expr):
+        self.var_id_expr = var_id_expr
+        self.rhs_expr = rhs_expr
+
     def typecheck(self, type_context):
         pass
 
     def eval(self, eval_context):
-        pass
+        # test whether if the lhs id_expr is assignable (using the context) before the assignment
+        # val cannot be reassigned
+
+        self.rhs_expr = self.rhs_expr.eval(eval_context)
+        eval_context.add(self.var_id_expr, self.rhs_expr)
 
     def __str__(self):
-        pass
+        sb = String_Builder()
+        sb.append("Assign_Stmt: ( ")
+        sb.append(str(self.var_id_expr))
+        sb.append(" = ")
+        sb.append(str(self.rhs_expr))
+        sb.append(" )")
+
+        return str(sb)
 
 
 class Print_Stmt(Stmt):

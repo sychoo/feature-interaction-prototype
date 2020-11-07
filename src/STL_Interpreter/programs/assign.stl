@@ -1,0 +1,39 @@
+// untyped val decl
+val i_1 = 10
+val j_1 = "hello"
+val k_1 = 3.1415926
+val l_1 = false
+
+// typed val decl
+val i_2: Int = 10
+val j_2: String = "hello"
+val k_2: Float = 3.1415926
+val l_2: Boolean = false
+
+// untyped var decl
+var i_3 = 10
+var j_3 = "hello"
+var k_3 = 3.1415926
+var l_3 = false
+
+// typed var decl
+var i_4: Int = 10
+var j_4: String = "hello"
+var k_4: Float = 3.1415926
+var l_4: Boolean = false
+
+println l_4
+
+println j_4
+/*
+
+// types of errors
+// error is in the order of its priority
+
+// reassign a constant-typed variable
+i_1 = 20
+
+// reassign a variable a different type
+i_4 = false
+
+*/

@@ -13,8 +13,9 @@ from core_AST import\
     Stmt_List,\
     Stmt,\
     Expr,\
+    Id_Expr,\
     STL_Expr,\
-    Val\
+    Val
 
 
 from stmt import\
