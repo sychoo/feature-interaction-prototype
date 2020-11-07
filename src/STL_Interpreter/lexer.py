@@ -35,8 +35,15 @@ class Lexer:
         # initialize the lexer generator
         lg = LexerGenerator()
 
+        # ignore all whitespaces except newline
+        lg.ignore(r"(\t|\ |\v|\r)+")
+
         # ignore all single-line comments and all white spaces afterwards
-        lg.ignore(r"\/\/.*\n") 
+
+        # original
+        # lg.ignore(r"\/\/(.*)?\n") 
+        # lg.ignore(r"\/\/(.*)") # match up to but not including the \n character
+
         # lg.ignore(r"\/\/(.|\n)*") 
 
         # ignore all multi-line comments and white spaces afterwards
@@ -45,12 +52,38 @@ class Lexer:
         # https://regex101.com
         # note that ? is lazy (match as few character as possible)
         # note that . matches all characters except line terminators
-        lg.ignore(r"(\/\*(((.|\n)*)?)\*\/(\s)*)")  
+        # original
+        # lg.ignore(r"(\/\*(((.|\n)*)?)\*\/(\s)*)")  
 
-        # ignore all whitespaces except newline
-        # lg.ignore(r"\s+") 
-        lg.ignore(r"(\t|\ |\v|\r)+")
-        # lg.ignore(r"^\n$")
+        
+        # lg.ignore(r"\s+") # ignore all white spaces
+
+
+
+        # lg.ignore(r"^\n$") # ignore all except new line
+
+        # signal representation
+        # https://stackoverflow.com/questions/32155133/regex-to-match-a-json-string
+        # Note that everything is atomic, JSON does not need backtracking if it's valid
+        # and this prevents catastrophic backtracking
+#         lg.add("SIGNAL", r"(?(DEFINE)\
+# (?<json>(?>\s*(?&object)\s*|\s*(?&array)\s*))\
+# (?<object>(?>\{\s*(?>(?&pair)(?>\s*,\s*(?&pair))*)?\s*\}))\
+# (?<pair>(?>(?&STRING)\s*:\s*(?&value)))\
+# (?<array>(?>\[\s*(?>(?&value)(?>\s*,\s*(?&value))*)?\s*\]))\
+# (?<value>(?>true|false|null|(?&STRING)|(?&NUMBER)|(?&object)|(?&array)))\
+# (?<STRING>(?>\"(?>\\(?>[\"\\\/bfnrt]|u[a-fA-F0-9]{4})|[^\"\\\0-\x1F\x7F]+)*\"))\
+# (?<NUMBER>(?>-?(?>0|[1-9][0-9]*)(?>\.[0-9]+)?(?>[eE][+-]?[0-9]+)?))\
+# )\
+# \A(?&json)\z\
+# ")
+
+        # lg.add("SIGNAL", r"\{.*\:\{.*\:.*\}\}")
+        # https://stackoverflow.com/questions/2583472/regex-to-validate-json
+        # lg.add("SIGNAL", r"[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]")
+
+
+        lg.add("SIGNAL", r"\$\{(.|\n)*\}\$")
 
         # logical operators
         lg.add("LOGICAL_AND", r"\&\&")
@@ -66,6 +99,8 @@ class Lexer:
         # binary logical operators for both numerical (Int, Float) and Boolean operations
         lg.add("EQUAL_EQUAL", r"\=\=")
         lg.add("NOT_EQUAL", r"\!\=")
+
+        lg.add("LOGICAL_NOT", r"\!")
 
         # program control structure
         # lg.add("WHILE", r"while")

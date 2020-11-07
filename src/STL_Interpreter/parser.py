@@ -35,6 +35,8 @@ class Parser:
         # define the reserved words for the parser
         # A list of all token names, accepted by the parser.
         pg = ParserGenerator([
+            # parse signals
+            "SIGNAL",
 
             # logical operators
             "LOGICAL_AND", 
@@ -107,11 +109,18 @@ class Parser:
 
             # A list of precedence rules with ascending precedence, to
             # disambiguate ambiguous production rules.
+            # the top has the highest precedence
+            # https://www.mathcs.emory.edu/~valerie/courses/fall10/155/resources/op_precedence.html
             precedence=[
                 ('left', ['LPAREN', 'RPAREN']),
                 ('left', ['PLUS', 'MINUS']),
-                ('left', ['MUL', 'DIV']),
+                ('left', ['MULTIPLY', 'DIVIDE']),
+                ('left', ['GREATER_EQUAL', 'LESS_EQUAL', 'GREATER', 'LESS', 'EQUAL_EQUAL', 'NOT_EQUAL']),
+                ('left', ['LOGICAL_NOT']),
+                ('left', ['LOGICAL_AND']),
+                ('left', ['LOGICAL_OR']),
                 ('right', ['EQUAL']),
+                ('nonassoc', ['PRINT', 'PRINTLN']) # non-associative
             ])
 
         # parser definition
@@ -139,10 +148,14 @@ class Parser:
             return AST.Stmt_List([s[0]])
 
 
-        @pg.production("stmt : L_BRACE stmt_list R_BRACE")
-        def stmt_list_block(s):
-            """parse block of statement list"""
-            return AST.Stmt_List(s[1])
+        # block statements
+        # @pg.production("stmt : L_BRACE stmt_list r_brace_as_separator")
+        # def stmt_list_block(s):
+        #     """parse block of statement list"""
+        #     return AST.Stmt_List(s[1])
+
+
+        # @pg.production("stmt : VAL_DECL ")
 
         # combine two similar statements
         @pg.production("stmt : PRINT expr separator")
@@ -161,6 +174,7 @@ class Parser:
 
         @pg.production("expr : L_PAREN expr R_PAREN")
         def parent_expr(s):
+            """calculate the parenthesized expression first"""
             return s[1]
 
         @pg.production("expr : expr GREATER expr")
@@ -171,25 +185,52 @@ class Parser:
         @pg.production("expr : expr NOT_EQUAL expr")
         def binary_comp_expr(s):
             """handles binary comparison expressions"""
-            return AST.Binary_Comp_Expr(s[1], s[0], s[2])
+            return AST.Binary_Comp_Expr(s[1].getstr(), s[1].gettokentype(), s[0], s[2])
 
         @pg.production("expr : expr LOGICAL_AND expr")
         @pg.production("expr : expr LOGICAL_OR expr")
         @pg.production("expr : expr LOGICAL_IMPLIES expr")
         def binary_logic_expr(s):
             """handles binary logic expressions"""
-            return AST.Binary_Logic_Expr(s[1].gettoketype(), s[0], s[2])
+            return AST.Binary_Logic_Expr(s[1].getstr(), s[1].gettokentype(), s[0], s[2])
 
-        # G[1, 10]()
-        @pg.production("expr : IDENTIFIER L_SQ_BRACE expr COMMA expr R_SQ_BRACE L_PAREN expr R_PAREN")        
-        def unary_STL_expr(s):
-            """handles unary STL expressions"""
-            return AST.Unary_STL_Expr(s[0].getstr(), s[2], s[4], s[7])
+        @pg.production("expr : expr PLUS expr")
+        @pg.production("expr : expr MINUS expr")
+        @pg.production("expr : expr DIVIDE expr")
+        @pg.production("expr : expr MULTIPLY expr")
+        def binary_arith_expr(s):
+            """handles binary logic expressions"""
+            return AST.Binary_Arith_Expr(s[1].getstr(), s[1].gettokentype(), s[0], s[2])
 
-        @pg.production("expr : L_PAREN expr R_PAREN IDENTIFIER L_SQ_BRACE expr COMMA expr R_SQ_BRACE L_PAREN expr R_PAREN")
+
+        # G[1, 10](condition)(t, <signal>)
+        @pg.production("expr : IDENTIFIER L_SQ_BRACE expr COMMA expr R_SQ_BRACE L_PAREN expr R_PAREN L_PAREN expr COMMA val R_PAREN")        
+        def unary_STL_expr_1(s):
+            """handles unary STL expressions (G: Globally, F: Eventually)"""
+            # obtain the operator of the STL expression
+
+            op = s[0].getstr()
+            if op == "G":
+                return AST.G_STL_Expr(op, s[2], s[4], s[7], s[10], s[12])
+            elif op == "F":
+                return AST.F_STL_Expr(op, s[2], s[4], s[7], s[10], s[12])
+            else:
+                raise RuntimeError("STL Operator: " + op + " not recognized.")
+
+            # X need to be handled separately
+
+        @pg.production("expr : IDENTIFIER L_SQ_BRACE expr R_SQ_BRACE L_PAREN expr R_PAREN L_PAREN expr COMMA val R_PAREN") 
+        def unary_STL_expr_2(s):
+            """handle unary STL expressions (X: next)"""
+            op = s[0].getstr()
+            if op == "X":
+                return AST.X_STL_Expr(op, s[2], s[5], s[8], s[10])
+
+        @pg.production("expr : L_PAREN expr R_PAREN IDENTIFIER L_SQ_BRACE expr COMMA expr R_SQ_BRACE L_PAREN expr R_PAREN L_PAREN expr COMMA val R_PAREN")
         def binary_STL_expr(s):
             """handler binary STL expressions"""
-            return AST.Binary_STL_Expr(s[3].getstr(), s[5], s[7], s[1], s[10])
+            return AST.Binary_STL_Expr(s[3].getstr(), s[5], s[7], s[1], s[10], s[13], s[15])
+
 
         @pg.production("expr : val")
         def single_val_expr(s):
@@ -220,9 +261,21 @@ class Parser:
             """parse Float values"""
             return AST.Boolean_Val(s[0].getstr(), s[0].gettokentype())
 
+        @pg.production("val : SIGNAL")
+        def boolean_val(s):
+            """parse Float values"""
+            return AST.Signal_Val(s[0].getstr(), s[0].gettokentype())
 
-        @pg.production("separator : SEMICOLON")
+        @pg.production("r_brace_as_separator : R_BRACE")
+        @pg.production("r_brace_as_separator : R_BRACE separator")
+        def r_brace_as_separator(s):
+            """helper function for block statement { stmt_list }
+            R_BRACE itself can act as a separator
+            """
+            pass
+
         @pg.production("separator : NEWLINE")
+        @pg.production("separator : SEMICOLON")
         @pg.production("separator : SEMICOLON NEWLINE")
         def separator(s):
             """parse separators

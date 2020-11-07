@@ -1,0 +1,57 @@
+println "----- INT -----"
+
+// test arithmetic expressions for integers (INT)
+println  1 + 1   // 2
+println 80 - 1  // 79
+println  8 * 19  // 152
+println  1 / 2   // 0
+
+// test comparison expressions for integers (INT)
+println  1 > 1 // false
+println 10 > 1 // true
+
+println 78 >= 100 // false
+println 19 >= 19  // true
+
+println 10 < 9   // false
+println  0 < 100 // true
+
+println 82 <= 10   // false
+println 763 <= 763 // true
+
+// println "----- test == operator -----"
+println 1 == 10  // false
+println 81 == 81 // true
+
+// println "----- test != operator -----"
+println 101 != 101 // false
+println  10 != 158 // true
+
+
+println "----- FLOAT -----"
+// test arithmetic expressions for float (FLOAT)
+println  1.0 + 1.1   // 2.1
+println 80.5 - 1.5  // 79.0
+println  8.0 * 19.1  // 152.8
+println  1.0 / 2.0   // 0.5
+
+// test comparison expressions for float (FLOAT)
+println  1.0 > 1.0 // false
+println 10.5 > 1.5 // true
+
+println 78.01 >= 100.10 // false
+println 19 >= 19  // true
+
+println 10.000001 < 9.000001   // false
+println  0.95 < 100.90 // true
+
+println 82.10 <= 10.05   // false
+println 763.11 <= 763.88 // true
+
+// println "----- test == operator -----"
+println 1.23 == 10.1  // false
+println 81.42123 == 81.42123 // true
+
+// println "----- test != operator -----"
+println 101.55 != 101.55 // false
+println  10.152 != 158.0E2 // true

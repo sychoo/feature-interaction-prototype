@@ -1,0 +1,8 @@
+{
+  /*
+  println
+  print "hello"
+  println
+  */
+}
+println "hello, world!"

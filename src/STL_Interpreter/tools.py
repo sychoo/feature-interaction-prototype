@@ -5,52 +5,106 @@ from termcolor import colored
 from sys import stdout
 from io import StringIO
 
+import re # for string replacement
+
 class Tools:
     @staticmethod
     def extract_raw_program_string(string):
-        """extract raw program string from string, get rid of all single-line whitespaces"""
+        """extract raw program string from string, get rid of all single-line whitespaces
+        handles preprocessing of the program
+        """
+
         # initialize line list
         line_list = list()
 
+        # specify regex for single-line comment and multi-line comments
+        single_line_comment_pattern = r"\/\/(.*)"
+        multi_line_comment_pattern = r"(\/\*(((.|\n)*)?)\*\/(\s)*)"
+
+        # replace all single-line and multi-line comments
+        string = re.sub(single_line_comment_pattern, "", string)
+        string = re.sub(multi_line_comment_pattern, "", string)
+
+        # get rid of all single line newline characters and single line whitespaces
         # split the program with delimiter \n
         splited_raw_program_string = string.split("\n")
 
         for line in splited_raw_program_string:
 
-            # check whether the line only consist of whitespaces
+            # check whether the line only consist of whitespaces or a dangling newline character
             if not (line.isspace() or line == ""):
                 line_list.append(line)
         
         # concatenate with (list of) lines with \n
         raw_program_string = "\n".join(line_list)
 
-        # add \n at the end if there isn't any
-        if raw_program_string[-1] != "\n":
-            raw_program_string += "\n"
-            
+        # when the file is not empty, add \n at the end
+        if len(raw_program_string) > 0:
+
+            # add \n at the end if there isn't any
+            if raw_program_string[-1] != "\n":
+                raw_program_string += "\n"
+                
         return raw_program_string
+
+    # original 
+    # @staticmethod
+    # def extract_raw_program_string(string):
+    #     """extract raw program string from string, get rid of all single-line whitespaces"""
+    #     # initialize line list
+    #     line_list = list()
+
+    #     # split the program with delimiter \n
+    #     splited_raw_program_string = string.split("\n")
+
+    #     for line in splited_raw_program_string:
+
+    #         # check whether the line only consist of whitespaces
+    #         if not (line.isspace() or line == ""):
+    #             line_list.append(line)
+        
+    #     # concatenate with (list of) lines with \n
+    #     raw_program_string = "\n".join(line_list)
+
+    #     # add \n at the end if there isn't any
+    #     if raw_program_string[-1] != "\n":
+    #         raw_program_string += "\n"
+            
+    #     return raw_program_string
 
 
     @staticmethod
     def get_raw_program_string(program_file):
         """get the raw program string based on the program_file given. It will get rid of all single line \n's in the program"""
-        # initialize line list
-        line_list = list()
+        string = ""
 
-        # open the program file with read permission, get the line stream
+        # read the entire file as a string
         with open(program_file, "r") as program_file_line_stream:
-            for line in program_file_line_stream:
+            string = program_file_line_stream.read()
 
-                # check whether the line only consist of whitespaces
-                if not (line.isspace()):
-                    line_list.append(line)
+        return Tools.extract_raw_program_string(string)
 
-        # print(line_list) #debug
+    # original
+    # @staticmethod
+    # def get_raw_program_string(program_file):
+    #     """get the raw program string based on the program_file given. It will get rid of all single line \n's in the program"""
+    #     # initialize line list
+    #     line_list = list()
 
-        # concatenate the (list of) lines of the program
-        raw_program_string = "".join(line_list)
+    #     # open the program file with read permission, get the line stream
+    #     with open(program_file, "r") as program_file_line_stream:
+    #         for line in program_file_line_stream:
 
-        return raw_program_string
+    #             # check whether the line only consist of whitespaces
+    #             if not (line.isspace()):
+    #                 line_list.append(line)
+
+    #     # print(line_list) #debug
+
+    #     # concatenate the (list of) lines of the program
+    #     raw_program_string = "".join(line_list)
+
+    #     return raw_program_string
 
     
     @staticmethod

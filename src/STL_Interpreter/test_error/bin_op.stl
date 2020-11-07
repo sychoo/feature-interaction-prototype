@@ -1,0 +1,5 @@
+// test arithmetic expressions
+println 1 + 1   // 2
+//println 80 - 1  // 79
+// println 8 * 19  // 152
+//println 1 / 2   // 0
