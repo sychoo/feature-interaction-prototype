@@ -126,6 +126,24 @@ class Program_Tests(unittest.TestCase):
         sys.stdout.flush()
 
 
+    def test_signal_and_STL_expr_with_file(self):
+        """run program file by shell command, highly depends on interp command"""
+        test_file = test_file_path("signal.stl")
+        actual_output = subprocess.check_output("python3 main.py " + test_file, shell=True)
+        expected_output = """true
+false
+true
+false
+false
+true
+false
+"""
+        # decode the output to string (byte -> string)
+        decoded_actual_output = actual_output.decode()
+        self.assertEqual(decoded_actual_output, expected_output)
+
+
+
     def test_unary_arith_op_with_file(self):
         """run program file by shell command, highly depends on interp command"""
         test_file = test_file_path("unary_arith_op.stl")
