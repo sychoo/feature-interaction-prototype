@@ -104,7 +104,9 @@ class Mission_Planner:
 
 
 
-            is_signal_estimation = False
+            # turn on or off the signal estimation
+            estimated_signal = None
+            is_signal_estimation = True
 
             if is_signal_estimation == True:
                 ##### signal estimation #####
@@ -163,7 +165,9 @@ class Mission_Planner:
                 # maybe change the time_span
                 estimated_signal = signal_estimator.get_signal_estimation()
 
-                print("step = " + str(steps) + " " + str(estimated_signal))
+
+                print("step = " + str(steps) + " estimated signal: " + str(estimated_signal))
+
                 # signal_data
 
                 # have obtained all necessary data from the drones (such as current coordinates)
@@ -181,6 +185,7 @@ class Mission_Planner:
             # write the step data to the response_data
             # create flight data for air traffic control
             
+            # pass messages to the shared flight data (by using ATC_Flight_Data object)
             ATC_message = "normal"
             ATC_flight_data = ATC_Flight_Data("ATC", {"step": steps, "message": ATC_message})
 
@@ -200,6 +205,8 @@ class Mission_Planner:
             # record the path, and update it in real time
             # self.flight_path.add_coords_by_response_data(response_data)
             self.flight_path.add_coords_by_shared_flight_data(shared_flight_data)
+
+            self.flight_path.add_estimated_signal(estimated_signal)
 
             # added warning messages
             self.flight_path.add_message_by_shared_flight_data(shared_flight_data)

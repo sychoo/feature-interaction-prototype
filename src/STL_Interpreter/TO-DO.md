@@ -94,3 +94,8 @@ then add support for meta variable evaluation
 Add array structure requires changes for parser compoenent for all the STL formula
 
 maybe add copy on write features
+
+allow nesting of STL formulas
+G[1, 2](G[1, 2](true)(t, signal))(t, signal)
+
+add IFF to the Binary_Logic_Expression

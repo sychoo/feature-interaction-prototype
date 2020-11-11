@@ -60,7 +60,12 @@ class Signal_Estimator:
 
         # steps = 0
         current_execution_signal_element_data = Signal_Element(0, current_execution_signal_element_data)
-        self.estimated_signal.add(Signal_Element(0, current_execution_signal_element_data))
+
+        # append the initial signal to the current estimate signal 
+        self.estimated_signal.add(current_execution_signal_element_data)
+
+        # print("type of added: " + str(type(current_execution_signal_element_data)))
+        # self.estimated_signal.add(Signal_Element(0, current_execution_signal_element_data))
 
 
         # copy the lookahead time span to the steps
@@ -76,6 +81,9 @@ class Signal_Estimator:
 
             ##### execution time #####
             for drone in self.drones:
+                # debugger
+                # drone.get_internal_map().visualize_visited_map()
+
                 # execute the next step of the drone movement
                 drone.next_step()
 
@@ -112,7 +120,8 @@ class Signal_Estimator:
                 current_execution_signal_element_data[drone.get_identifier()] = {"current_coord": current_coord}
 
             current_execution_signal_element_data = Signal_Element(steps, current_execution_signal_element_data)
-            self.estimated_signal.add(Signal_Element(steps, current_execution_signal_element_data))
+            # self.estimated_signal.add(Signal_Element(steps, current_execution_signal_element_data))
+            self.estimated_signal.add(current_execution_signal_element_data)
 
             # increment the step
             steps += 1
@@ -157,6 +166,9 @@ class Signal_Estimator:
 #   1: {'Ego': {'current_coord': (0, 20)}, 'Enemy': {'current_coord': (0, 5)}})
 #   ...
 #}
+
+# signal is simply a list of Signal_Elements
+# each time matches to a Signal_Elements object
 class Signal:
     def __init__(self):
         # initialize the signal list
@@ -167,13 +179,16 @@ class Signal:
 
     # slight variation. Signal is a dictionary index by the time associated with the signal element
     def add(self, signal_element):
-        self.signal_list[signal_element.get_time()] = signal_element.get_signal_data()
+        # self.signal_list[signal_element.get_time()] = signal_element.get_signal_data()
+        self.signal_list[signal_element.get_time()] = signal_element
 
     def get_signal_data_by_time(self, time):
-        return self.signal_list[time]
+        return self.signal_list[time].get_signal_data()
 
     def get_signal_element(self, time):
-        return Signal_Element(time, self.get_signal_data_by_time(time))
+        # print("type: ", type(self.get_signal_data_by_time(time)))
+        # return Signal_Element(time, self.get_signal_data_by_time(time))
+        return self.signal_list[time]
         
     # def get_signal_by_time(self, time):
     #     """function that returns a singleton signal"""
@@ -182,7 +197,7 @@ class Signal:
     #     return Signal()
     
     # use ordered list instead in the future
-    def __repr__(self):
+    def __str__(self):
         time_list = self.signal_list.keys()
 
         str_builder = "{\n"
@@ -204,7 +219,7 @@ class Signal_Element:
     def __init__(self, time, signal_data=dict()):
         self.time = time
         self.signal_data = signal_data
-        
+
     def get_time(self):
         return self.time
 
@@ -240,6 +255,7 @@ class Signal_Element:
 
     def __str__(self):
         return str(self.signal_data)
+
 # support the evaluation of robustness value with respect to a signal
 class Robustness:
     def __init__(self, stl_formula, signal):

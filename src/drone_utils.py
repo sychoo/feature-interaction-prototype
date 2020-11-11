@@ -506,7 +506,8 @@ class EgoDrone(Drone):
         sorted_displacement_diff = sorted(
             map_cell_displacement_diff.items(), key=lambda x: x[1][1])
 
-        #[(map_cell, (north, displacement_diff)), (...)]
+        #[(map_cell, ("north", displacement_diff)), (...)]
+        # find the cell with minimum different value (deviation) from the mathematical calculation
         min_diff_value = sorted_displacement_diff[0][1][1]
         # sorted_displacement_diff is sorted by displacement_diff
 

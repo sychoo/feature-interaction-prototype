@@ -11,7 +11,8 @@ from matplotlib.animation import FuncAnimation
 from map_utils import Coord
 import numpy as np
 
-ANIMATION_INTERVAL = 400 # default is 400
+ANIMATION_INTERVAL = 400 # default is 400ms
+
 
 class Path:
     """
@@ -80,7 +81,18 @@ class Path:
             # convert the list of map cells in self.coord_list to numeric values
             # self.coord_list[drone_identifier].append((response_current_map_cell.x(), response_current_map_cell.y()))
             self.coord_list[drone_identifier].append(response_current_map_cell.get_coord())
-            
+    
+    def add_estimated_signal(self, estimated_signal):
+        """set the estimated signal"""
+        # if the estimate_signal class variable hasn't been initialized, initialize the variable
+        # note that estimated signal is a list of dictionaries
+        if not hasattr(self, "estimated_signal"):
+            self.estimated_signal = list()
+
+        # append the estimated signal to the self.estimated_signal
+        self.estimated_signal.append(estimated_signal)
+
+
     def display_coords(self):
         # helper function to display the coordinates collected from the execution cycle
         print(self.coord_list)
@@ -106,16 +118,80 @@ class Path:
             self.coord_list_linearized[drone_identifier]["x_cor_data"] = x_cor_data
             self.coord_list_linearized[drone_identifier]["y_cor_data"] = y_cor_data
 
+    def linearize_estimated_signal(self):
+        # estimated_signal_linearized is a list of dictionary
+        # note that list is indexed by time
+        self.estimated_signal_linearized = list() # dict()
+
+        # loop through different times
+        for time_index in range(0, len(self.estimated_signal)):
+            # create a new list that holds the dictionary
+            estimated_signal_linearized_dict = dict()
+
+            # loop through drone identifiers
+            for drone_identifier in self.drone_identifier_list:
+                # initialize the dictionary
+                # self.coord_list_linearized = {"EgoDrone": {"x_cor_data": [1, 2, 3], "y_cor_data": [1, 3, 4]}, "EnemyDrone"...}
+                estimated_signal_linearized_dict[drone_identifier] = dict()
+
+                # initialize the list containing the linearized x and y coordinate data
+                x_cor_data = []
+                y_cor_data = []
+
+                # loop through the time (LOOKAHEAD time) for each drone identifier
+                for time in range(self.estimated_signal[time_index].length()):
+                    # print(type(self.estimated_signal))
+                    # separate x and y coordinates data
+                    # print(type(self.estimated_signal.signal_list[time]))
+                    signal_element = self.estimated_signal[time_index].get_signal_element(time)
+
+                    # get the coordinates from the signal_element
+                    coords = signal_element.get_signal_data_by_id_key(drone_identifier, "current_coord")
+
+                    # append the x y coordinate to x and y array, respectively
+                    x_cor_data.append(coords.x())
+                    y_cor_data.append(coords.y())
+                    
+                estimated_signal_linearized_dict[drone_identifier]["x_cor_data"] = x_cor_data
+                estimated_signal_linearized_dict[drone_identifier]["y_cor_data"] = y_cor_data
+
+            # add the dictionary to the list
+            self.estimated_signal_linearized.append(estimated_signal_linearized_dict)     
+
+        # return the list of linearized coordinates
+        return self.estimated_signal_linearized
+
+        # self.estimated_signal 
     def init_plot(self):
         # function to initialize the plot
 
         # use the style from fivethirtyeight.com
         plt.style.use('fivethirtyeight')
         
-        # initialize different labels using different drone identifiers
+        # initialize graph identifier list as a class variable
+        self.graph_identifier_list = list()
+
+        # initialize different labels using different drone identifiers, including estimates
         for drone_identifier in self.drone_identifier_list:
-            plt.plot([], [], label=drone_identifier)
-    
+        
+            self.graph_identifier_list.append(drone_identifier)
+
+        for drone_identifier in self.drone_identifier_list:
+            self.graph_identifier_list.append(drone_identifier + " Estimate")
+        
+        print(self.graph_identifier_list)
+        # intialize 4 lines in the plot (hardcoded)
+
+        for graph_identifier in self.graph_identifier_list[0:2]:
+            plt.plot([], [], label=graph_identifier)#,#linestyle="dashed")
+
+        for graph_identifier in self.graph_identifier_list[2:4]:
+            plt.plot([], [], label=graph_identifier,linestyle="dashed")
+
+        # case when there is no estimated signal
+        # for drone_identifier in self.drone_identifier_list:
+            # plt.plot([], [], label=drone_identifier)
+
     # note that sometimes ego drone will fly first because enemy will not move without response data from the ego drone
     def animate(self):
         # initialize the plot
@@ -123,6 +199,7 @@ class Path:
 
         # linearized the coordinate data collected
         self.linearize_coord_list()
+
 
         # initialize the current step to 0
         self.current_step = 0
@@ -140,18 +217,73 @@ class Path:
         def animate_helper(i):
             ax = plt.gca()
 
+            # determine whether to display estimated signal by whether the class has the estimated_signal attribute
+            is_display_estimated_signal = hasattr(self, "estimated_signal")
+
+            if is_display_estimated_signal:
+                # linearize the estimated signal for display
+                self.linearize_estimated_signal()
+
+
             drone_count = 0
-            drone_max = len(self.drone_identifier_list)
+            drone_max = len(self.drone_identifier_list) # set number of drone path lines in the graph
 
             # make one line correspond to one drone
             for line in ax.lines:
-                # specify each of the line data (note that the order matters)
-                if drone_count < drone_max:
-                    drone_identifier = self.drone_identifier_list[drone_count]
-                    drone_count += 1
-                    line.set_data(self.coord_list_linearized[drone_identifier]["x_cor_data"][0:self.current_step], self.coord_list_linearized[drone_identifier]["y_cor_data"][0:self.current_step])
+
+                # case when signal need to be estimated
+                if is_display_estimated_signal:
+                    if self.current_step < len(self.estimated_signal_linearized):
+                        # print(self.estimated_signal_linearized)
+
+                        print("drone_count (estimate signal): " , drone_count)
+                        print("current step : " + str(self.current_step))
+                        print("length of estimated signal lineared : " + str(len(self.estimated_signal_linearized)))
+                        # specify each of the line data (note that the order matters)
+                        if drone_count < drone_max:
+                            drone_identifier = self.drone_identifier_list[drone_count]
+                            drone_count += 1
+                            line.set_data(self.coord_list_linearized[drone_identifier]["x_cor_data"][0:self.current_step], self.coord_list_linearized[drone_identifier]["y_cor_data"][0:self.current_step])
+
+                        elif drone_count >= drone_max and drone_count < drone_max * 2:
+                            drone_identifier = self.drone_identifier_list[drone_count % drone_max]
+                            line_identifier = drone_identifier + " Estimate"
+                            drone_count += 1
+                            line.set_data(self.estimated_signal_linearized[self.current_step][drone_identifier]["x_cor_data"], self.estimated_signal_linearized[self.current_step][drone_identifier]["y_cor_data"])
+
+                        else:
+                            # when exceeding the number of lines drawn, break the loop
+                            break
+                    
+
+
+                
                 else:
-                    break
+                    # default mode, no estimated signal
+                    # print(self.estimated_signal_linearized)
+
+                    print("drone_count: " , drone_count)
+                    # specify each of the line data (note that the order matters)
+                    if drone_count < drone_max:
+                        drone_identifier = self.drone_identifier_list[drone_count]
+                        drone_count += 1
+                        line.set_data(self.coord_list_linearized[drone_identifier]["x_cor_data"][0:self.current_step], self.coord_list_linearized[drone_identifier]["y_cor_data"][0:self.current_step])
+
+                    else:
+                        # when exceeding the number of lines drawn, break the loop
+                        break
+
+            # # plot the estimation flight paths
+            # # https://matplotlib.org/3.1.0/gallery/lines_bars_and_markers/linestyles.html
+            # drone_count = 0 # reset drone_count variable
+            # for line in ax.lines:
+            #     if drone_count < drone_max:
+            #         drone_identifier = self.drone_identifier_list[drone_count]
+            #         line_identifier = drone_identifier + " Estimate"
+            #         drone_count += 1
+            #         line.set_data(self.estimated_signal_linearized[drone_identifier]["x_cor_data"], self.estimated_signal_linearized[drone_identifier]["y_cor_data"])
+
+
 
             # the visualizer will keep executing even after exceeding the limit
             # make sure to check bound

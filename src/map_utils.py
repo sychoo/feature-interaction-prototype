@@ -80,6 +80,13 @@ class Map_Cell:
     def get_output(self):
         return self.output
 
+    def get_visited(self):
+        if hasattr(self.attributes, "visited"):
+            return self.attributes["visited"]
+        else:
+            return 0
+        # return self.attributes["visited"]
+
     def distance_to(self, map_cell):
         # return math.sqrt((map_cell.x() - self.x())**2 + (map_cell.y() - self.y())**2)
         return Algorithms.distance_between_2_points(self.get_coord(), map_cell.get_coord())
@@ -155,6 +162,11 @@ class Map:
         # generate the output map for seaborn (after manipulating the special output variable)
         return [ [ self.get_map_cell(Coord(x, y)).get_output() for x in range(self.width) ] for y in range(self.height) ]
 
+    def get_visited_map(self):
+        # generate the output map for seaborn (after manipulating the special output variable)
+        return [ [ self.get_map_cell(Coord(x, y)).get_visited() for x in range(self.width) ] for y in range(self.height) ]
+
+
     def find_neighbors_8(self, map_cell):
         neighbor_dict = {}
 
@@ -210,7 +222,7 @@ class Map:
         if hasattr(self, "internal_map"):
             for index, map_cell in enumerate(self.internal_map):
                 if index % self.width == 0:
-                    print("height = " + str(map_cell.get_y_cor()))
+                    print("height = " + str(map_cell.y()))
 
                 print(map_cell)
 
@@ -218,6 +230,16 @@ class Map:
                     print()
         else:
             raise RuntimeError("map variable has not been initialized.")
+
+    def visualize_visited_map(self):
+        # visualize the map if the map contains "map" attribute
+        for row_array in self.get_visited_map():
+            print("\t", end="")
+
+            for element in row_array:
+                print("{0:2}".format(element), end="")
+
+            print()
 
     def visualize_output_map(self):
         # visualize the map if the map contains "map" attribute
