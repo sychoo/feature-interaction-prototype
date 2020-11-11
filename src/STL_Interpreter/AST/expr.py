@@ -70,7 +70,18 @@ class Binary_Expr(Expr):
 
 # expr implementation
 class Binary_Comp_Expr(Binary_Expr):
-    """stores binary comparison operation expression AST, except Binary STL expressions"""
+    """stores binary comparison operation expression AST, except Binary STL expressions
+    handles the evalution of meta variable
+    
+    There are 3 scenarios in term of the position of meta variables
+    
+    - Meta varible can be on the LHS of the binary comparison
+        - simply convert the entire Binary_Comp_Expr to a list of Binary_Comp_Expr's (with no meta variables), evaluate them separately, and result in a final value using logical_and
+
+    - Similar thing happens on the RHS (similar to when meta variable is located on the LHS)
+
+    - When meta variable exists on both side of the binary expression, compare each element of the list separately (comparison will only exist on individual time/moment level)
+    """
     def typecheck(self, type_context):
         pass
 

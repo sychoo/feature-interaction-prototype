@@ -92,3 +92,5 @@ in the future, maybe make array a type, and [1, 2, 3] > 1 as a syntactic sugar -
 then add support for meta variable evaluation
 
 Add array structure requires changes for parser compoenent for all the STL formula
+
+maybe add copy on write features
