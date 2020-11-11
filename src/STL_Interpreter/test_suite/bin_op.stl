@@ -55,3 +55,15 @@ println 81.42123 == 81.42123 // true
 // println "----- test != operator -----"
 println 101.55 != 101.55 // false
 println  10.152 != 158.0E2 // true
+
+
+
+
+println "----- LOGICAL -----"
+// Test Logical expressions
+println true && false // false
+println false || true // true
+println (true != true) && true // false
+println (false == false) || false // true
+println !true // false
+println !false // true

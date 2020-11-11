@@ -28,21 +28,21 @@ class Test_Tools(unittest.TestCase):
 
     def test_evaluation_context(self):
         ctx_1 = AST.Eval_Context.get_empty_context()
-        ctx_1.add(AST.Id_Expr("i"), 10)
-        ctx_1.add(AST.Id_Expr("j"), 20)
-        ctx_1.add(AST.Id_Expr("k"), 30)
+        ctx_1.add(AST.Id_Val("i"), 10)
+        ctx_1.add(AST.Id_Val("j"), 20)
+        ctx_1.add(AST.Id_Val("k"), 30)
 
         ctx_2 = AST.Eval_Context.get_empty_context()
-        ctx_2.add(AST.Id_Expr("a"), 100)
-        ctx_2.add(AST.Id_Expr("b"), 200)
-        ctx_2.add(AST.Id_Expr("c"), 300)
+        ctx_2.add(AST.Id_Val("a"), 100)
+        ctx_2.add(AST.Id_Val("b"), 200)
+        ctx_2.add(AST.Id_Val("c"), 300)
 
-        self.assertEqual(ctx_1.lookup(AST.Id_Expr("k")), 30)
-        self.assertEqual(ctx_2.lookup(AST.Id_Expr("b")), 200)
+        self.assertEqual(ctx_1.lookup(AST.Id_Val("k")), 30)
+        self.assertEqual(ctx_2.lookup(AST.Id_Val("b")), 200)
 
         # look up something that doesn't exist in the context scope
         try:
-            ctx_1.lookup(AST.Id_Expr("ds"))
+            ctx_1.lookup(AST.Id_Val("ds"))
         except exceptions.Context_Lookup_Error as e:
             # flush out the error message so that it doesn't print at the end
             sys.stdout.flush()
@@ -52,21 +52,21 @@ class Test_Tools(unittest.TestCase):
 
     def test_type_context(self):
         ctx_1 = AST.Type_Context.get_empty_context()
-        ctx_1.add(AST.Id_Expr("i"), 10)
-        ctx_1.add(AST.Id_Expr("j"), 20)
-        ctx_1.add(AST.Id_Expr("k"), 30)
+        ctx_1.add(AST.Id_Val("i"), 10)
+        ctx_1.add(AST.Id_Val("j"), 20)
+        ctx_1.add(AST.Id_Val("k"), 30)
 
         ctx_2 = AST.Type_Context.get_empty_context()
-        ctx_2.add(AST.Id_Expr("a"), 100, {"val": True})
-        ctx_2.add(AST.Id_Expr("b"), 200)
-        ctx_2.add(AST.Id_Expr("c"), 300)
+        ctx_2.add(AST.Id_Val("a"), 100, {"val": True})
+        ctx_2.add(AST.Id_Val("b"), 200)
+        ctx_2.add(AST.Id_Val("c"), 300)
 
-        self.assertEqual(ctx_1.lookup(AST.Id_Expr("k")), 30)
-        self.assertEqual(ctx_2.lookup(AST.Id_Expr("b")), 200)
+        self.assertEqual(ctx_1.lookup(AST.Id_Val("k")), 30)
+        self.assertEqual(ctx_2.lookup(AST.Id_Val("b")), 200)
 
         # look up something that doesn't exist in the context scope
         try:
-            ctx_1.lookup(AST.Id_Expr("ds"))
+            ctx_1.lookup(AST.Id_Val("ds"))
         except exceptions.Context_Lookup_Error as e:
             # flush out the error message so that it doesn't print at the end
             sys.stdout.flush()
@@ -125,6 +125,56 @@ class Program_Tests(unittest.TestCase):
         main.Interpreter(test_file)
         sys.stdout.flush()
 
+
+    def test_unary_arith_op_with_file(self):
+        """run program file by shell command, highly depends on interp command"""
+        test_file = test_file_path("unary_arith_op.stl")
+        actual_output = subprocess.check_output("python3 main.py " + test_file, shell=True)
+        expected_output = """-1
+-1.0
+10
+-1
+-8.0
+"""
+        # decode the output to string (byte -> string)
+        decoded_actual_output = actual_output.decode()
+        self.assertEqual(decoded_actual_output, expected_output)
+
+
+
+    def test_val_var_decl_assign_with_file(self):
+        """run program file by shell command, highly depends on interp command"""
+        test_file = test_file_path("normal_assign.stl")
+        actual_output = subprocess.check_output("python3 main.py " + test_file, shell=True)
+        expected_output = """10
+hello
+3.1415926
+false
+10
+hello
+3.1415926
+false
+10
+hello
+3.1415926
+false
+10
+hello
+3.1415926
+false
+1000
+world
+6.28
+true
+10
+world
+628.0
+true
+"""
+        # decode the output to string (byte -> string)
+        decoded_actual_output = actual_output.decode()
+        self.assertEqual(decoded_actual_output, expected_output)
+
     def test_binary_operator_with_file(self):
         """run program file by shell command, highly depends on interp command"""
         test_file = test_file_path("bin_op.stl")
@@ -157,6 +207,13 @@ false
 true
 false
 true
+false
+true
+false
+true
+false
+true
+----- LOGICAL -----
 false
 true
 false

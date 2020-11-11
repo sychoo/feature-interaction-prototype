@@ -9,6 +9,8 @@ from sys import stdout, path
 path.append("..") # Adds higher directory to python modules path.
 
 from tools import String_Builder
+
+
 import exceptions
 
 class Eval_Context:
@@ -25,9 +27,9 @@ class Eval_Context:
         self.context = context
         self.outer_context = outer_context
 
-    def add(self, id_expr, var_value, attr=list()):
+    def add(self, id_val, var_value, attr=list()):
         """add new key values pairs for a new variable given Id_Expr()"""
-        var_id = id_expr.get_id()
+        var_id = id_val.get_id()
 
         # update the current context
         self.context.update({var_id: {"var_value": var_value, "attr": attr}})
@@ -129,19 +131,6 @@ class Node(metaclass=abc.ABCMeta):
     def isSubTypeOf(self, other):
         return type(self) is type(other)
         
-    # # equal operator overload
-    # def __eq__(self, other):
-    #     if not isinstance(other, Node):
-    #         return NotImplemented
-    #         # __dict__ contains object's symbol table
-    #     return (type(self) is type(other) and self.__dict__ == other.__dict__)
-
-    
-    # # not equal to operator overload
-
-    # def __ne__(self, other):
-    #     return not (self == other)
-
     def type(self):
         return type(self)
 
@@ -208,36 +197,9 @@ class Expr(Stmt):
     """super class for expressions"""
     pass
 
-class Id_Expr(Expr):
-    """stores identifier of the variable, variable expression
-    stores 
-            type signature
-            variable identifier signature
-            and STL formula operator
-    """
 
-    def __init__(self, var_id):
-        """take the identifier name of the variable"""
-        self.var_id = var_id
 
-    def __str__(self):
-        sb = String_Builder()
-        sb.append("Var_Expr: ( ")
-        sb.append(self.var_id)
-        sb.append(" )")
-
-        return str(sb)
-
-    def get_id(self):
-        return self.var_id
-
-    def eval(self, eval_context):
-        return eval_context.lookup(self)
-
-    
-    def typecheck(self):
-        pass
-
+# Note that Val is defined in val.py due to circular import (need to define __ne__ and __eq__ using Boolean Val)
 
 class Val(Expr):
     """super class for values, store primitive value types"""
@@ -262,7 +224,10 @@ class Val(Expr):
 
     def typecheck(self, type_context):
         return self.value_type
+
+
 # /top-level classes
+
 
 class STL_Expr(Expr):
 

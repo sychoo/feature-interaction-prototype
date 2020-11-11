@@ -83,7 +83,7 @@ class Lexer:
         # lg.add("SIGNAL", r"[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]")
 
 
-        lg.add("SIGNAL", r"\$\{(.|\n)*\}\$")
+        lg.add("SIGNAL", r"\$\{(.|\n)*?\}\$")
 
         # logical operators
         lg.add("LOGICAL_AND", r"\&\&")
@@ -161,6 +161,8 @@ class Lexer:
         # identifiers (variable identifiers/type identifiers/STL operator identifier)
         lg.add("IDENTIFIER", r"[a-zA-Z_][a-zA-Z0-9_]*")
 
+        lg.add("META_IDENTIFIER", r"\$[a-zA-Z_][a-zA-Z0-9_.]*")
+        
         # build the lexer
         self.lexer = lg.build()
 

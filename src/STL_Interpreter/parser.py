@@ -11,6 +11,7 @@ from lexer import Lexer
 from sys import argv
 from tools import Tools
 import os
+import exceptions
 
 class Eval_Context:
     @staticmethod
@@ -104,6 +105,7 @@ class Parser:
             # "UNTIL",
             # "RELEASE",
 
+            "META_IDENTIFIER",
             # identifiers (variable identifiers/type identifiers)
             "IDENTIFIER",
             ],
@@ -158,31 +160,31 @@ class Parser:
 
 
         # typed val declaration (type inference)
-        @pg.production("stmt : VAL_DECL expr EQUAL expr separator")
+        @pg.production("stmt : VAL_DECL val EQUAL expr separator")
         def untyped_var_decl_stmt(s):
             return AST.Val_Decl_Stmt(s[0].gettokentype(), s[1], None, s[3])
 
     
         # untyped var declaration (type inference)
-        @pg.production("stmt : VAR_DECL expr EQUAL expr separator")
+        @pg.production("stmt : VAR_DECL val EQUAL expr separator")
         def untyped_var_decl_stmt(s):
             return AST.Var_Decl_Stmt(s[0].gettokentype(), s[1], None, s[3])
 
         
 
         # typed val declaration
-        @pg.production("stmt : VAL_DECL expr COLON expr EQUAL expr separator")
+        @pg.production("stmt : VAL_DECL val COLON expr EQUAL expr separator")
         def typed_val_decl_stmt(s):
             return AST.Val_Decl_Stmt(s[0].gettokentype(), s[1], s[3], s[5])
 
 
         # typed var declaration
-        @pg.production("stmt : VAR_DECL expr COLON expr EQUAL expr separator")
+        @pg.production("stmt : VAR_DECL val COLON expr EQUAL expr separator")
         def typed_val_decl_stmt(s):
             return AST.Var_Decl_Stmt(s[0].gettokentype(), s[1], s[3], s[5])
 
         # assignment statement (non-declaration style)
-        @pg.production("stmt : expr EQUAL expr separator")
+        @pg.production("stmt : val EQUAL expr separator")
         def assign_stmt(s):
             return AST.Assign_Stmt(s[0], s[2])
 
@@ -202,9 +204,13 @@ class Parser:
         def single_expr_stmt(s):
             return s[0]
 
-        @pg.production("expr : IDENTIFIER")
+        @pg.production("val : IDENTIFIER")
         def var_expr(s):
-            return AST.Id_Expr(s[0].getstr())
+            return AST.Id_Val(s[0].getstr())
+
+        @pg.production("val : META_IDENTIFIER")
+        def var_expr(s):
+            return AST.Meta_Id_Val(s[0].getstr())
 
         @pg.production("expr : L_PAREN expr R_PAREN")
         def parent_expr(s):
@@ -223,7 +229,7 @@ class Parser:
 
         @pg.production("expr : LOGICAL_NOT expr")
         def unary_logic_expr(s):
-            pass
+            return AST.Unary_Logic_Expr(s[0].getstr(), s[0].gettokentype(), s[1])
 
         @pg.production("expr : expr LOGICAL_AND expr")
         @pg.production("expr : expr LOGICAL_OR expr")
@@ -231,6 +237,11 @@ class Parser:
         def binary_logic_expr(s):
             """handles binary logic expressions"""
             return AST.Binary_Logic_Expr(s[1].getstr(), s[1].gettokentype(), s[0], s[2])
+
+        @pg.production("expr : PLUS expr")
+        @pg.production("expr : MINUS expr")
+        def unary_arith_expr(s):
+            return AST.Unary_Arith_Expr(s[0].getstr(), s[0].gettokentype(), s[1])
 
         @pg.production("expr : expr PLUS expr")
         @pg.production("expr : expr MINUS expr")
@@ -240,20 +251,20 @@ class Parser:
             """handles binary logic expressions"""
             return AST.Binary_Arith_Expr(s[1].getstr(), s[1].gettokentype(), s[0], s[2])
 
-
         # G[1, 10](condition)(t, <signal>)
         @pg.production("expr : IDENTIFIER L_SQ_BRACE expr COMMA expr R_SQ_BRACE L_PAREN expr R_PAREN L_PAREN expr COMMA val R_PAREN")        
         def unary_STL_expr_1(s):
             """handles unary STL expressions (G: Globally, F: Eventually)"""
             # obtain the operator of the STL expression
-
             op = s[0].getstr()
+
             if op == "G":
                 return AST.G_STL_Expr(op, s[2], s[4], s[7], s[10], s[12])
             elif op == "F":
                 return AST.F_STL_Expr(op, s[2], s[4], s[7], s[10], s[12])
             else:
-                raise RuntimeError("STL Operator: " + op + " not recognized.")
+                # Parse_Error
+                raise Parse_Error("STL Operator: " + op + " not recognized.")
 
             # X need to be handled separately
 
@@ -302,7 +313,7 @@ class Parser:
         @pg.production("val : SIGNAL")
         def boolean_val(s):
             """parse Float values"""
-            return AST.Signal_Val(s[0].getstr(), s[0].gettokentype())
+            return AST.Signal_Val(s[0].getstr(), None, s[0].gettokentype())
 
         # @pg.production("r_brace_as_separator : R_BRACE")
         # @pg.production("r_brace_as_separator : R_BRACE separator")

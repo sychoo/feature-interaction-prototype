@@ -13,10 +13,8 @@ from core_AST import\
     Stmt_List,\
     Stmt,\
     Expr,\
-    Id_Expr,\
     STL_Expr,\
     Val
-
 
 from stmt import\
     Val_Decl_Stmt,\
@@ -29,7 +27,10 @@ from expr import\
     Binary_Expr,\
     Binary_Comp_Expr,\
     Binary_Logic_Expr,\
-    Binary_Arith_Expr
+    Binary_Arith_Expr,\
+    Unary_Expr,\
+    Unary_Logic_Expr,\
+    Unary_Arith_Expr
 
 
 from STL_expr import\
@@ -44,7 +45,9 @@ from val import\
     Int_Val,\
     Float_Val,\
     String_Val,\
-    Boolean_Val
+    Boolean_Val,\
+    Id_Val,\
+    Meta_Id_Val
 
 from signal_val import\
     Signal_Val

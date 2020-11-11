@@ -9,6 +9,24 @@ import re # for string replacement
 
 class Tools:
     @staticmethod
+    def str_to_bool(string):
+        if string == "true":
+            return True
+        elif string == "false":
+            return False
+        else:
+            raise RuntimeError("string value \"" + string + "\" is not recognized and cannot be converted to boolean.")
+
+    @staticmethod
+    def bool_to_str(bool):
+        if bool == True:
+            return "true"
+        elif bool == False:
+            return "false"
+        else:
+            raise RuntimeError("boolean value \"" + bool + "\" is not recognized and cannot be converted to string.")
+
+    @staticmethod
     def extract_raw_program_string(string):
         """extract raw program string from string, get rid of all single-line whitespaces
         handles preprocessing of the program
@@ -132,12 +150,20 @@ class Tools:
 
     @staticmethod
     def check_token_length(token_stream):# # find the number of tokens
+        # find number of tokens
+        token_num = Tools.token_length(token_stream)
+
+        if token_num <= 0:
+            exit(0)
+
+    @staticmethod
+    def token_length(token_stream):
+        """find the number of tokens"""
         token_num = 0
         for _ in token_stream:
             token_num += 1
         
-        if token_num <= 0:
-            exit(0)
+        return token_num
 
 # https://stackoverflow.com/questions/2414667/python-string-class-like-stringbuilder-in-c
 class String_Builder:
